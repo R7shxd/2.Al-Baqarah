@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Mind Map Builder: Surah Al-Baqarah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* Lightest Blue-Gray */
+            color: #2C3E50; /* Dark Navy */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column; /* Allow header, main, and footer to stack */
+        }
+        .header {
+            background-color: #4A90E2; /* Darker Blue */
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .main-content {
+            flex-grow: 1; /* Allows this section to fill available space */
+            display: flex;
+            flex-direction: row; /* Default for larger screens */
+            /* Removed overflow: hidden from here to allow content to scroll if needed */
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #E0F7FA; /* Light Blue */
+            padding: 1.5rem;
+            box-shadow: 4px 0 6px -1px rgba(0, 0, 0, 0.1);
+            overflow-y: auto; /* Enable scrolling for sidebar content */
+            flex-shrink: 0;
+        }
+        .draggable-node-template {
+            background-color: #D0E7F5; /* Light Blue */
+            border: 1px solid #A7D9F0; /* Medium Light Blue */
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            cursor: grab;
+            font-weight: 500;
+            text-align: center;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .draggable-node-template:hover {
+            background-color: #CFEEF7;
+            transform: translateY(-2px);
+        }
+        .mind-map-canvas {
+            flex-grow: 1;
+            background-color: #FFFFFF;
+            border: 1px solid #E0F7FA;
+            position: relative;
+            overflow: auto; /* Allow canvas itself to scroll if nodes go out of bounds */
+            cursor: default;
+        }
+        .node {
+            position: absolute;
+            background-color: #70B8E1; /* Main Blue */
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            cursor: grab;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+            text-align: center;
+            font-weight: 600;
+            z-index: 10; /* Nodes above SVG lines */
+            transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .node:hover {
+            background-color: #5A9BDC; /* Slightly darker blue */
+            box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.15);
+        }
+        .node.selected-for-connection {
+            border: 3px solid #2ECC71; /* Emerald Green */
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.7);
+        }
+        .node input[type="text"] {
+            background: none;
+            border: none;
+            color: white;
+            text-align: center;
+            width: 100%;
+            font-weight: 600;
+            outline: none;
+        }
+        .controls {
+            padding: 1rem;
+            background-color: #F0F8FF;
+            border-top: 1px solid #E0F7FA;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-shrink: 0; /* Prevent controls from shrinking */
+        }
+        .control-button {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .control-button.primary {
+            background-color: #2ECC71; /* Emerald Green */
+            color: white;
+        }
+        .control-button.primary:hover {
+            background-color: #25A05B; /* Darker Emerald */
+            transform: translateY(-1px);
+        }
+        .control-button.secondary {
+            background-color: #FF6B6B; /* Coral */
+            color: white;
+        }
+        .control-button.secondary:hover {
+            background-color: #E05252; /* Darker Coral */
+            transform: translateY(-1px);
+        }
+        .control-button.active {
+            background-color: #4A90E2; /* Darker Blue */
+            color: white;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* SVG for lines */
+        .connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allows clicks to pass through to nodes */
+            z-index: 5; /* Below nodes */
+        }
+        .connection-line {
+            stroke: #4A90E2; /* Darker Blue */
+            stroke-width: 2;
+            marker-end: url(#arrowhead);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 200px; /* Limit sidebar height on small screens */
+                order: 2; /* Move sidebar below canvas for better viewing */
+                box-shadow: 0 0 6px -1px rgba(0, 0, 0, 0.1); /* Adjusted shadow for bottom */
+            }
+            .mind-map-canvas {
+                min-height: 400px; /* Ensure canvas has enough height */
+                order: 1;
+            }
+            .controls {
+                order: 3;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <header class="header">
+        <h1 class="text-3xl font-bold">Surah Al-Baqarah Concept Mapper</h1>
+        <p class="text-lg opacity-90 mt-1">Visualize and connect key themes from your deep research.</p>
+    </header>
+
+    <div class="flex flex-1 main-content">
+        <aside class="sidebar">
+            <h2 class="text-xl font-semibold mb-4 text-[#4A90E2]">Concepts & Themes</h2>
+            <div class="space-y-3">
+                <div class="draggable-node-template" draggable="true" data-type="theme">The Righteous (Al-Muttaqin)</div>
+                <div class="draggable-node-template" draggable="true" data-type="theme">The Disbelievers (Al-Kafirun)</div>
+                <div class="draggable-node-template" draggable="true" data-type="theme">The Hypocrites (Al-Munafiqun)</div>
+                <div class="draggable-node-template" draggable="true" data-type="pillar">Prayer (Salat)</div>
+                <div class="draggable-node-template" draggable="true" data-type="pillar">Charity (Zakah)</div>
+                <div class="draggable-node-template" draggable="true" data-type="pillar">Fasting (Sawm)</div>
+                <div class="draggable-node-template" draggable="true" data-type="pillar">Pilgrimage (Hajj)</div>
+                <div class="draggable-node-template" draggable="true" data-type="narrative">Creation of Adam</div>
+                <div class="draggable-node-template" draggable="true" data-type="narrative">Children of Israel</div>
+                <div class="draggable-node-template" draggable="true" data-type="narrative">Saul, Goliath & David</div>
+                <div class="draggable-node-template" draggable="true" data-type="concept">Divine Attributes</div>
+                <div class="draggable-node-template" draggable="true" data-type="concept">Last Day / Hereafter</div>
+                <div class="draggable-node-template" draggable="true" data-type="ethics">Justice (Al-Adl)</div>
+                <div class="draggable-node-template" draggable="true" data-type="ethics">Patience (Sabr)</div>
+                <div class="draggable-node-template" draggable="true" data-type="ethics">Prohibition of Riba</div>
+                <div class="draggable-node-template" draggable="true" data-type="ethics">Trust (Amanah)</div>
+                <div class="draggable-node-template" draggable="true" data-type="parable">Kindled Fire Parable</div>
+                <div class="draggable-node-template" draggable="true" data-type="parable">Burned Garden Parable</div>
+                <div class="draggable-node-template" draggable="true" data-type="parable">Hardened Hearts Parable</div>
+                <div class="draggable-node-template" draggable="true" data-type="new-node">Custom Node (Drag Me!)</div>
+            </div>
+        </aside>
+
+        <section class="mind-map-canvas relative" id="mindMapCanvas">
+            <svg class="connections-svg" id="connectionsSvg">
+                <defs>
+                    <marker id="arrowhead" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#4A90E2" />
+                    </marker>
+                </defs>
+            </svg>
+            </section>
+    </div>
+
+    <footer class="controls">
+        <button class="control-button primary" id="connectModeButton">Connect Nodes</button>
+        <button class="control-button secondary" id="clearAllButton">Clear All</button>
+        <button class="control-button primary" id="loadTemplateButton">Load Template</button>
+    </footer>
+
+    <script>
+        const mindMapCanvas = document.getElementById('mindMapCanvas');
+        const connectionsSvg = document.getElementById('connectionsSvg');
+        const connectModeButton = document.getElementById('connectModeButton');
+        const clearAllButton = document.getElementById('clearAllButton');
+        const loadTemplateButton = document.getElementById('loadTemplateButton');
+
+        let isDraggingNode = false;
+        let activeNode = null;
+        let offsetX, offsetY;
+        let nodeIdCounter = 0;
+
+        let isConnectMode = false;
+        let firstNodeForConnection = null;
+
+        // Store nodes and connections data
+        const nodes = new Map(); // Map<nodeId, {element, x, y, width, height}>
+        const connections = new Map(); // Map<connectionId, {fromNodeId, toNodeId, lineElement}>
+        let connectionIdCounter = 0;
+
+        // --- Helper Functions ---
+        function createNodeElement(text, x, y, id = `node-${nodeIdCounter++}`) {
+            const nodeElement = document.createElement('div');
+            nodeElement.className = 'node';
+            nodeElement.id = id;
+            nodeElement.style.left = `${x}px`;
+            nodeElement.style.top = `${y}px`;
+
+            const inputElement = document.createElement('input');
+            inputElement.type = 'text';
+            inputElement.value = text;
+            inputElement.readOnly = true; // Start as read-only
+            nodeElement.appendChild(inputElement);
+
+            mindMapCanvas.appendChild(nodeElement); // Append first
+
+            // Store node dimensions AFTER it's rendered in the DOM
+            const rect = nodeElement.getBoundingClientRect();
+            nodes.set(id, {
+                element: nodeElement,
+                input: inputElement,
+                x: x,
+                y: y,
+                width: rect.width,
+                height: rect.height
+            });
+
+            // Make the input editable on double click
+            inputElement.ondblclick = (e) => {
+                inputElement.readOnly = false;
+                inputElement.focus();
+                e.stopPropagation(); // Prevent canvas click from deselecting
+            };
+
+            // Save changes on blur
+            inputElement.onblur = () => {
+                inputElement.readOnly = true;
+                // Update node text in map
+                const nodeData = nodes.get(id);
+                if (nodeData) {
+                    nodeData.element.textContent = inputElement.value; // Update displayed text
+                    nodeData.input.value = inputElement.value; // Keep input value consistent
+                }
+            };
+
+            // Handle drag start
+            nodeElement.onmousedown = (e) => {
+                if (e.target === inputElement && !inputElement.readOnly) {
+                    return; // Don't drag if editing text
+                }
+                if (isConnectMode) {
+                    handleNodeClickForConnection(id);
+                    return;
+                }
+                isDraggingNode = true;
+                activeNode = id;
+                // Calculate offset relative to the node's top-left
+                const nodeRect = nodeElement.getBoundingClientRect();
+                offsetX = e.clientX - nodeRect.left;
+                offsetY = e.clientY - nodeRect.top;
+                nodeElement.style.cursor = 'grabbing';
+            };
+
+            // Handle touch events for dragging
+            nodeElement.ontouchstart = (e) => {
+                if (e.target === inputElement && !inputElement.readOnly) {
+                    return;
+                }
+                if (isConnectMode) {
+                    handleNodeClickForConnection(id);
+                    return;
+                }
+                isDraggingNode = true;
+                activeNode = id;
+                const touch = e.touches[0];
+                const nodeRect = nodeElement.getBoundingClientRect();
+                offsetX = touch.clientX - nodeRect.left;
+                offsetY = touch.clientY - nodeRect.top;
+                nodeElement.style.cursor = 'grabbing';
+                e.preventDefault(); // Prevent scrolling while dragging
+            };
+
+            return nodeElement;
+        }
+
+        function updateNodePosition(nodeId, newX, newY) {
+            const nodeData = nodes.get(nodeId);
+            if (nodeData) {
+                nodeData.x = newX;
+                nodeData.y = newY;
+                nodeData.element.style.left = `${newX}px`;
+                nodeData.element.style.top = `${newY}px`;
+                updateConnections(nodeId);
+            }
+        }
+
+        function updateConnections(nodeId) {
+            connections.forEach(conn => {
+                if (conn.fromNodeId === nodeId || conn.toNodeId === nodeId) {
+                    drawConnection(conn.fromNodeId, conn.toNodeId, conn.lineElement);
+                }
+            });
+        }
+
+        function drawConnection(fromId, toId, lineElement) {
+            const fromNode = nodes.get(fromId);
+            const toNode = nodes.get(toId);
+
+            if (!fromNode || !toNode) {
+                console.error("One or both nodes not found for connection:", fromId, toId);
+                return;
+            }
+
+            // Calculate center points of nodes
+            const x1 = fromNode.x + fromNode.width / 2;
+            const y1 = fromNode.y + fromNode.height / 2;
+            const x2 = toNode.x + toNode.width / 2;
+            const y2 = toNode.y + toNode.height / 2;
+
+            if (!lineElement) {
+                lineElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                lineElement.setAttribute('class', 'connection-line');
+                connectionsSvg.appendChild(lineElement);
+            }
+
+            lineElement.setAttribute('x1', x1);
+            lineElement.setAttribute('y1', y1);
+            lineElement.setAttribute('x2', x2);
+            lineElement.setAttribute('y2', y2);
+
+            return lineElement;
+        }
+
+        function removeNode(nodeId) {
+            const nodeData = nodes.get(nodeId);
+            if (nodeData) {
+                mindMapCanvas.removeChild(nodeData.element);
+                nodes.delete(nodeId);
+
+                // Remove associated connections
+                const connectionsToRemove = [];
+                connections.forEach((conn, id) => {
+                    if (conn.fromNodeId === nodeId || conn.toNodeId === nodeId) {
+                        connectionsToRemove.push(id);
+                    }
+                });
+                connectionsToRemove.forEach(id => {
+                    const conn = connections.get(id);
+                    connectionsSvg.removeChild(conn.lineElement);
+                    connections.delete(id);
+                });
+            }
+        }
+
+        function clearAll() {
+            nodes.forEach(node => mindMapCanvas.removeChild(node.element));
+            nodes.clear();
+            connections.forEach(conn => connectionsSvg.removeChild(conn.lineElement));
+            connections.clear();
+            nodeIdCounter = 0;
+            connectionIdCounter = 0;
+            if (isConnectMode) toggleConnectMode(); // Exit connect mode if active
+            firstNodeForConnection = null;
+        }
+
+        function loadTemplate() {
+            clearAll(); // Start with a clean canvas
+
+            const patienceNode = createNodeElement('Patience (Sabr)', 100, 200, 'template-patience');
+            const prayerNode = createNodeElement('Prayer (Salat)', 350, 100, 'template-prayer');
+            const charityNode = createNodeElement('Charity (Zakah)', 350, 300, 'template-charity');
+            const helpNode = createNodeElement('Seek Help Through', 220, 200, 'template-help');
+            const spiritualGrowthNode = createNodeElement('Spiritual Growth', 550, 200, 'template-spiritual-growth');
+
+            // Draw connections for the template
+            connections.set(`conn-${connectionIdCounter++}`, {
+                fromNodeId: 'template-help',
+                toNodeId: 'template-patience',
+                lineElement: drawConnection('template-help', 'template-patience', null)
+            });
+            connections.set(`conn-${connectionIdCounter++}`, {
+                fromNodeId: 'template-help',
+                toNodeId: 'template-prayer',
+                lineElement: drawConnection('template-help', 'template-prayer', null)
+            });
+            connections.set(`conn-${connectionIdCounter++}`, {
+                fromNodeId: 'template-help',
+                toNodeId: 'template-charity',
+                lineElement: drawConnection('template-help', 'template-charity', null)
+            });
+            connections.set(`conn-${connectionIdCounter++}`, {
+                fromNodeId: 'template-patience',
+                toNodeId: 'template-spiritual-growth',
+                lineElement: drawConnection('template-patience', 'template-spiritual-growth', null)
+            });
+            connections.set(`conn-${connectionIdCounter++}`, {
+                fromNodeId: 'template-prayer',
+                toNodeId: 'template-spiritual-growth',
+                lineElement: drawConnection('template-prayer', 'template-spiritual-growth', null)
+            });
+            connections.set(`conn-${connectionIdCounter++}`, {
+                fromNodeId: 'template-charity',
+                toNodeId: 'template-spiritual-growth',
+                lineElement: drawConnection('template-charity', 'template-spiritual-growth', null)
+            });
+        }
+
+        // --- Event Handlers ---
+
+        // Dragging from sidebar
+        document.querySelectorAll('.draggable-node-template').forEach(template => {
+            template.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', e.target.textContent);
+                e.dataTransfer.setData('data-type', e.target.dataset.type);
+            });
+        });
+
+        // Dropping on canvas
+        mindMapCanvas.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Allow drop
+        });
+
+        mindMapCanvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const text = e.dataTransfer.getData('text/plain');
+            const type = e.dataTransfer.getData('data-type');
+
+            // Calculate position relative to the canvas
+            const canvasRect = mindMapCanvas.getBoundingClientRect();
+            const x = e.clientX - canvasRect.left;
+            const y = e.clientY - canvasRect.top;
+
+            createNodeElement(text, x, y);
+        });
+
+        // Moving nodes on canvas
+        mindMapCanvas.addEventListener('mousemove', (e) => {
+            if (!isDraggingNode || !activeNode) return;
+
+            // Calculate new position relative to the canvas
+            const canvasRect = mindMapCanvas.getBoundingClientRect();
+            let newX = e.clientX - canvasRect.left - offsetX;
+            let newY = e.clientY - canvasRect.top - offsetY;
+
+            // Optional: Boundary checks
+            newX = Math.max(0, Math.min(newX, canvasRect.width - nodes.get(activeNode).width));
+            newY = Math.max(0, Math.min(newY, canvasRect.height - nodes.get(activeNode).height));
+
+            updateNodePosition(activeNode, newX, newY);
+        });
+
+        // Touch move for dragging
+        mindMapCanvas.addEventListener('touchmove', (e) => {
+            if (!isDraggingNode || !activeNode) return;
+            const touch = e.touches[0];
+            const canvasRect = mindMapCanvas.getBoundingClientRect();
+            let newX = touch.clientX - canvasRect.left - offsetX;
+            let newY = touch.clientY - canvasRect.top - offsetY;
+
+            newX = Math.max(0, Math.min(newX, canvasRect.width - nodes.get(activeNode).width));
+            newY = Math.max(0, Math.min(newY, canvasRect.height - nodes.get(activeNode).height));
+
+            updateNodePosition(activeNode, newX, newY);
+            e.preventDefault(); // Prevent scrolling while dragging
+        });
+
+
+        mindMapCanvas.addEventListener('mouseup', () => {
+            isDraggingNode = false;
+            if (activeNode) {
+                nodes.get(activeNode).element.style.cursor = 'grab';
+                activeNode = null;
+            }
+        });
+
+        // Touch end for dragging
+        mindMapCanvas.addEventListener('touchend', () => {
+            isDraggingNode = false;
+            if (activeNode) {
+                nodes.get(activeNode).element.style.cursor = 'grab';
+                activeNode = null;
+            }
+        });
+
+
+        // Connect Mode Logic
+        function toggleConnectMode() {
+            isConnectMode = !isConnectMode;
+            if (isConnectMode) {
+                connectModeButton.classList.add('active');
+                mindMapCanvas.style.cursor = 'crosshair';
+                // Reset any previously selected nodes
+                if (firstNodeForConnection) {
+                    nodes.get(firstNodeForConnection).element.classList.remove('selected-for-connection');
+                    firstNodeForConnection = null;
+                }
+            } else {
+                connectModeButton.classList.remove('active');
+                mindMapCanvas.style.cursor = 'default';
+                if (firstNodeForConnection) {
+                    nodes.get(firstNodeForConnection).element.classList.remove('selected-for-connection');
+                    firstNodeForConnection = null;
+                }
+            }
+        }
+
+        function handleNodeClickForConnection(nodeId) {
+            const clickedNodeElement = nodes.get(nodeId).element;
+
+            if (!firstNodeForConnection) {
+                // First node selected
+                firstNodeForConnection = nodeId;
+                clickedNodeElement.classList.add('selected-for-connection');
+            } else if (firstNodeForConnection === nodeId) {
+                // Clicking the same node again deselects it
+                clickedNodeElement.classList.remove('selected-for-connection');
+                firstNodeForConnection = null;
+            } else {
+                // Second node selected, create connection
+                const lineElement = drawConnection(firstNodeForConnection, nodeId, null);
+                connections.set(`conn-${connectionIdCounter++}`, {
+                    fromNodeId: firstNodeForConnection,
+                    toNodeId: nodeId,
+                    lineElement: lineElement
+                });
+
+                // Deselect first node and exit connect mode
+                nodes.get(firstNodeForConnection).element.classList.remove('selected-for-connection');
+                firstNodeForConnection = null;
+                toggleConnectMode(); // Exit connect mode after successful connection
+            }
+        }
+
+        // Add event listeners for control buttons
+        connectModeButton.addEventListener('click', toggleConnectMode);
+        clearAllButton.addEventListener('click', clearAll);
+        loadTemplateButton.addEventListener('click', loadTemplate);
+
+        // Initial load of a simple template for demonstration
+        loadTemplate();
+    </script>
+</body>
+</html>

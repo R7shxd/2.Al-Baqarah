@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thematic Verse Explorer: Surah Al-Baqarah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* Lightest Blue-Gray */
+            color: #2C3E50; /* Dark Navy */
+            /* Removed: overflow: hidden; */ /* This was preventing scrolling */
+        }
+        .header {
+            background-color: #4A90E2; /* Darker Blue */
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #E0F7FA; /* Light Blue */
+            padding: 1.5rem;
+            box-shadow: 4px 0 6px -1px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        .theme-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            background-color: #D0E7F5; /* Light Blue */
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+        .theme-item:hover {
+            background-color: #CFEEF7;
+            transform: translateX(3px);
+        }
+        .theme-item.active {
+            background-color: #4A90E2; /* Darker Blue */
+            color: white;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FFFFFF;
+            padding: 2rem;
+            overflow-y: auto;
+            border-left: 1px solid #E0F7FA;
+        }
+        .verse-card {
+            background-color: #F0F8FF; /* Lighter Blue for cards */
+            border: 1px solid #D0E7F5;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .verse-number {
+            font-weight: 700;
+            color: #4A90E2; /* Darker Blue */
+            margin-bottom: 0.5rem;
+        }
+        .arabic-text {
+            font-family: 'Amiri', serif; /* Or any suitable Arabic font */
+            font-size: 1.5rem;
+            text-align: right;
+            line-height: 2.2;
+            margin-bottom: 0.75rem;
+            color: #34495E; /* Dark Gray */
+        }
+        .translation-text {
+            font-style: italic;
+            color: #5D6D7E; /* Medium Gray */
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .analysis-text {
+            border-top: 1px dashed #A7D9F0;
+            padding-top: 1rem;
+            color: #2C3E50; /* Dark Navy */
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .filter-section {
+            background-color: #F0F8FF;
+            padding: 1.5rem;
+            border-bottom: 1px solid #E0F7FA;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        .filter-section label {
+            font-weight: 600;
+            color: #4A90E2;
+        }
+        .filter-section select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #A7D9F0;
+            border-radius: 0.375rem;
+            background-color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s ease-in-out;
+        }
+        .filter-section select:focus {
+            border-color: #4A90E2;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 250px;
+                order: 2; /* Move sidebar below main content for better viewing */
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .main-content {
+                order: 1;
+                min-height: 400px;
+                border-left: none;
+                border-bottom: 1px solid #E0F7FA;
+            }
+            .filter-section {
+                order: 3;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="flex flex-col h-screen">
+
+    <header class="header">
+        <h1 class="text-3xl font-bold">Surah Al-Baqarah Thematic Explorer</h1>
+        <p class="text-lg opacity-90 mt-1">Explore verses by themes, archetypes, and rulings.</p>
+    </header>
+
+    <section class="filter-section">
+        <label for="archetypeFilter">Archetype:</label>
+        <select id="archetypeFilter">
+            <option value="">All</option>
+            </select>
+
+        <label for="rulingFilter">Legal Ruling:</label>
+        <select id="rulingFilter">
+            <option value="">All</option>
+            </select>
+
+        <label for="commandProhibitionFilter">Type:</label>
+        <select id="commandProhibitionFilter">
+            <option value="">All</option>
+            <option value="Command">Command</option>
+            <option value="Prohibition">Prohibition</option>
+            <option value="Description">Description</option>
+        </select>
+    </section>
+
+    <div class="flex flex-1 main-container">
+        <aside class="sidebar" id="themeSidebar">
+            <h2 class="text-xl font-semibold mb-4 text-[#4A90E2]">Themes</h2>
+            <div id="themeList">
+                </div>
+        </aside>
+
+        <section class="main-content" id="verseDisplayArea">
+            <h2 class="text-2xl font-bold mb-6 text-[#4A90E2]">Select a theme to begin exploration.</h2>
+            </section>
+    </div>
+
+    <script>
+        // Sample Data: This data would typically come from a backend or a parsed structured file.
+        // For demonstration, it's hardcoded here.
+        const surahData = [
+            {
+                verseNumber: "2:2",
+                arabicText: "ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ فِيهِ هُدًى لِّلْمُتَّقِينَ",
+                translation: "This is the Book about which there is no doubt, a guidance for those conscious of Allah -",
+                themes: ["Guidance", "Divine Revelation", "Righteousness"],
+                archetypes: ["Al-Muttaqin (The Righteous)"],
+                legalRulings: [],
+                commandsProhibitions: ["Description"],
+                analysis: "This foundational verse establishes the Quran as an infallible guide, specifically for those who possess taqwa (God-consciousness)."
+            },
+            {
+                verseNumber: "2:3",
+                arabicText: "ٱلَّذِينَ يُؤْمِنُونَ بِٱلْغَيْبِ وَيُقِيمُونَ ٱلصَّلَوٰةَ وَمِمَّا رَزَقْنَٰهُمْ يُنفِقُونَ",
+                translation: "Who believe in the unseen, establish prayer, and spend out of what We have provided for them,",
+                themes: ["Faith", "Worship", "Charity", "Righteousness"],
+                archetypes: ["Al-Muttaqin (The Righteous)"],
+                legalRulings: ["Prayer (Salat)", "Charity (Infaq)"],
+                commandsProhibitions: ["Command"],
+                analysis: "Describes key characteristics of the righteous: belief in the unseen (foundational faith), establishing prayer (connection with God), and spending in charity (connection with creation)."
+            },
+            {
+                verseNumber: "2:4",
+                arabicText: "وَٱلَّذِينَ يُؤْمِنُونَ بِمَآ أُنزِلَ إِلَيْكَ وَمَآ أُنزِلَ مِن قَبْلِكَ وَبِٱلْءَاخِرَةِ هُمْ يُوقِنُونَ",
+                translation: "And who believe in what has been revealed to you, [O Muhammad], and what was revealed before you, and of the Hereafter they are certain [in faith].",
+                themes: ["Faith", "Divine Revelation", "Prophethood", "Last Day / Hereafter"],
+                archetypes: ["Al-Muttaqin (The Righteous)"],
+                legalRulings: [],
+                commandsProhibitions: ["Description"],
+                analysis: "Expands on the belief of the righteous, emphasizing faith in all divine revelations and certainty in the Hereafter, highlighting the continuity of divine message."
+            },
+            {
+                verseNumber: "2:6",
+                arabicText: "إِنَّ ٱلَّذِينَ كَفَرُوا۟ سَوَآءٌ عَلَيْهِمْ ءَأَنذَرْتَهُمْ أَمْ لَمْ تُنذِرْهُمْ لَا يُؤْمِنُونَ",
+                translation: "Indeed, those who disbelieve it is all the same for them whether you warn them or do not warn them - they will not believe.",
+                themes: ["Disbelief", "Human States"],
+                archetypes: ["Al-Kafirun (The Disbelievers)"],
+                legalRulings: [],
+                commandsProhibitions: ["Description"],
+                analysis: "Illustrates the hardened state of those who reject faith, indicating their spiritual blindness to divine warnings."
+            },
+            {
+                verseNumber: "2:7",
+                arabicText: "خَتَمَ ٱللَّهُ عَلَىٰ قُلُوبِهِمْ وَعَلَىٰ سَمْعِهِمْ وَعَلَىٰٓ أَبْصَٰرِهِمْ غِشَٰوَةٌ وَلَهُمْ عَذَابٌ عَظِيمٌ",
+                translation: "Allah has set a seal upon their hearts and upon their hearing, and over their eyes is a veil; and for them is a great punishment.",
+                themes: ["Disbelief", "Divine Judgment"],
+                archetypes: ["Al-Kafirun (The Disbelievers)"],
+                legalRulings: [],
+                commandsProhibitions: ["Description"],
+                analysis: "Explains the consequence of persistent disbelief: a spiritual sealing that prevents them from perceiving truth, leading to severe accountability."
+            },
+            {
+                verseNumber: "2:153",
+                arabicText: "يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱسْتَعِينُوا۟ بِٱلصَّبْرِ وَٱلصَّلَوٰةِۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّٰبِرِينَ",
+                translation: "O you who have believed, seek help through patience and prayer. Indeed, Allah is with the patient.",
+                themes: ["Patience", "Prayer", "Divine Support"],
+                archetypes: ["Believers"],
+                legalRulings: ["Prayer (Salat)", "Patience (Sabr)"],
+                commandsProhibitions: ["Command"],
+                analysis: "A vital instruction for believers, emphasizing patience and prayer as essential means to seek divine assistance and navigate life's challenges."
+            },
+            {
+                verseNumber: "2:168",
+                arabicText: "يَٰٓأَيُّهَا ٱلنَّاسُ كُلُوا۟ مِمَّا فِى ٱلْأَرْضِ حَلَٰلًا طَيِّبًا وَلَا تَتَّبِعُوا۟ خُطُوَٰتِ ٱلشَّيْطَٰنِۚ إِنَّهُۥ لَكُمْ عَدُوٌّ مُّبِينٌ",
+                translation: "O mankind, eat from whatever is on earth [that is] lawful and good and do not follow the footsteps of Satan. Indeed, he is to you a clear enemy.",
+                themes: ["Lawful Earnings", "Permissible Food", "Satan's Influence"],
+                archetypes: ["Mankind"],
+                legalRulings: ["Permissible (Halal)", "Prohibition (Following Satan)"],
+                commandsProhibitions: ["Command", "Prohibition"],
+                analysis: "A general command to humanity regarding consumption of lawful and good things, coupled with a warning against succumbing to Satanic temptations."
+            },
+            {
+                verseNumber: "2:195",
+                arabicText: "وَأَنفِقُوا۟ فِى سَبِيلِ ٱللَّهِ وَلَا تُلْقُوا۟ بِأَيْدِيكُمْ إِلَى ٱلتَّهْلُكَةِ وَأَحْسِنُوٓا۟ۚ إِنَّ ٱللَّهَ يُحِبُّ ٱلْمُحْسِنِينَ",
+                translation: "And spend in the way of Allah and do not throw [yourselves] with your [own] hands into destruction [by refraining]. And do good; indeed, Allah loves the doers of good.",
+                themes: ["Charity", "Self-destruction", "Benevolence"],
+                archetypes: ["Believers"],
+                legalRulings: ["Charity (Infaq)", "Avoidance of Harm"],
+                commandsProhibitions: ["Command", "Prohibition"],
+                analysis: "Encourages generous spending in God's cause, warns against miserliness leading to ruin, and highlights the divine love for those who excel in good deeds."
+            },
+            {
+                verseNumber: "2:275",
+                arabicText: "ٱلَّذِينَ يَأْكُلُونَ ٱلرِّبَوٰا۟ لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ ٱلَّذِى يَتَخَبَّطُهُ ٱلشَّيْطَٰنُ مِنَ ٱلْمَسِّۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوٓا۟ إِنَّمَا ٱلْبَيْعُ مِثْلُ ٱلرِّبَوٰا۟ۗ وَأَحَلَّ ٱللَّهُ ٱلْبَيْعَ وَحَرَّمَ ٱلرِّبَوٰا۟ۚ",
+                translation: "Those who consume interest will not stand [on the Day of Resurrection] except as one stands who is being beaten by Satan into insanity. That is because they say, 'Trade is only like interest.' Whereas Allah has permitted trade and forbidden interest.",
+                themes: ["Financial Ethics", "Prohibition of Riba (Interest)", "Divine Law"],
+                archetypes: ["Those who consume Riba"],
+                legalRulings: ["Prohibition of Riba"],
+                commandsProhibitions: ["Prohibition"],
+                analysis: "A severe warning against consuming interest, differentiating it fundamentally from lawful trade and emphasizing God's clear decree on both."
+            },
+            {
+                verseNumber: "2:285",
+                arabicText: "ءَامَنَ ٱلرَّسُولُ بِمَآ أُنزِلَ إِلَيْهِ مِن رَّبِّهِۦ وَٱلْمُؤْمِنُونَۚ كُلٌّ ءَامَنَ بِٱللَّهِ وَمَلَٰٓئِكَتِهِۦ وَكُتُبِهِۦ وَرُسُلِهِۦ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِۦۚ وَقَالُوا۟ سَمِعْنَا وَأَطَعْنَاۖ غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ ٱلْمَصِيرُ",
+                translation: "The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers. All of them have believed in Allah and His angels and His books and His messengers, [saying], 'We make no distinction between any of His messengers.' And they say, 'We hear and we obey. [We seek] Your forgiveness, our Lord, and to You is the [final] destination.'",
+                themes: ["Faith", "Monotheism", "Prophethood", "Submission", "Supplication"],
+                archetypes: ["Messenger", "Believers"],
+                legalRulings: [],
+                commandsProhibitions: ["Description"],
+                analysis: "A powerful declaration of faith by the Prophet and believers, affirming belief in all core tenets of Islam and expressing complete submission to God's will."
+            },
+            {
+                verseNumber: "2:286",
+                arabicText: "لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَاۚ لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا ٱكْتَسَبَتْۗ رَبَّنَا لَا تُؤَاخِذْنَآ إِن نَّسِينَآ أَوْ أَخْطَأْنَاۚ رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَآ إِصْرًا كَمَا حَمَلْتَهُۥ عَلَى ٱلَّذِينَ مِن قَبْلِنَاۚ رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِۦۖ وَٱعْفُ عَنَّا وَٱغْفِرْ لَنَا وَٱرْحَمْنَآۚ أَنتَ مَوْلَىٰنَا فَٱنصُرْنَا عَلَى ٱلْقَوْمِ ٱلْكَٰفِرِينَ",
+                translation: "Allah does not charge a soul except [with that within] its capacity. It will have [the consequence of] what it has gained, and it will bear [the consequence of] what it has earned. Our Lord, do not impose upon us what we have not strength to bear. And pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people.",
+                themes: ["Divine Justice", "Human Capacity", "Responsibility", "Supplication", "Mercy"],
+                archetypes: ["Believers"],
+                legalRulings: [],
+                commandsProhibitions: ["Description", "Supplication"],
+                analysis: "The concluding verse of Surah Al-Baqarah, offering solace that God burdens no soul beyond its capacity, and culminating in a profound prayer for forgiveness, ease, and divine aid."
+            }
+            // Add more verses and themes here
+        ];
+
+        const themeSidebar = document.getElementById('themeSidebar');
+        const themeList = document.getElementById('themeList');
+        const verseDisplayArea = document.getElementById('verseDisplayArea');
+        const archetypeFilter = document.getElementById('archetypeFilter');
+        const rulingFilter = document.getElementById('rulingFilter');
+        const commandProhibitionFilter = document.getElementById('commandProhibitionFilter');
+
+        let activeTheme = null; // To keep track of the currently selected theme
+
+        // Extract unique themes, archetypes, and rulings for filters
+        const allThemes = [...new Set(surahData.flatMap(verse => verse.themes))].sort();
+        const allArchetypes = [...new Set(surahData.flatMap(verse => verse.archetypes))].sort();
+        const allLegalRulings = [...new Set(surahData.flatMap(verse => verse.legalRulings))].sort();
+
+        function populateThemes() {
+            themeList.innerHTML = '';
+            allThemes.forEach(theme => {
+                const themeItem = document.createElement('div');
+                themeItem.className = 'theme-item';
+                themeItem.textContent = theme;
+                themeItem.dataset.theme = theme;
+                themeItem.addEventListener('click', () => selectTheme(theme));
+                themeList.appendChild(themeItem);
+            });
+        }
+
+        function populateFilters() {
+            // Archetypes
+            allArchetypes.forEach(archetype => {
+                const option = document.createElement('option');
+                option.value = archetype;
+                option.textContent = archetype;
+                archetypeFilter.appendChild(option);
+            });
+
+            // Legal Rulings
+            allLegalRulings.forEach(ruling => {
+                const option = document.createElement('option');
+                option.value = ruling;
+                option.textContent = ruling;
+                rulingFilter.appendChild(option);
+            });
+        }
+
+        function displayVerses(theme, archetype, ruling, type) {
+            verseDisplayArea.innerHTML = ''; // Clear previous verses
+
+            const filteredVerses = surahData.filter(verse => {
+                const matchesTheme = theme ? verse.themes.includes(theme) : true;
+                const matchesArchetype = archetype ? verse.archetypes.includes(archetype) : true;
+                const matchesRuling = ruling ? verse.legalRulings.includes(ruling) : true;
+                const matchesType = type ? verse.commandsProhibitions.includes(type) : true;
+
+                return matchesTheme && matchesArchetype && matchesRuling && matchesType;
+            });
+
+            if (filteredVerses.length === 0) {
+                verseDisplayArea.innerHTML = `<p class="text-lg text-gray-600">No verses found for the selected criteria. Try a different combination.</p>`;
+                return;
+            }
+
+            filteredVerses.forEach(verse => {
+                const verseCard = document.createElement('div');
+                verseCard.className = 'verse-card';
+
+                verseCard.innerHTML = `
+                    <div class="verse-number">Verse ${verse.verseNumber}</div>
+                    <div class="arabic-text">${verse.arabicText}</div>
+                    <div class="translation-text">"${verse.translation}"</div>
+                    <div class="analysis-text">
+                        <strong>Analysis:</strong> ${verse.analysis}
+                        <div class="text-sm text-gray-500 mt-2">
+                            <strong>Themes:</strong> ${verse.themes.join(', ')}<br>
+                            ${verse.archetypes.length > 0 ? `<strong>Archetypes:</strong> ${verse.archetypes.join(', ')}<br>` : ''}
+                            ${verse.legalRulings.length > 0 ? `<strong>Legal Rulings:</strong> ${verse.legalRulings.join(', ')}<br>` : ''}
+                            ${verse.commandsProhibitions.length > 0 ? `<strong>Type:</strong> ${verse.commandsProhibitions.join(', ')}` : ''}
+                        </div>
+                    </div>
+                `;
+                verseDisplayArea.appendChild(verseCard);
+            });
+        }
+
+        function selectTheme(theme) {
+            // Update active state in sidebar
+            document.querySelectorAll('.theme-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const selectedThemeItem = document.querySelector(`.theme-item[data-theme="${theme}"]`);
+            if (selectedThemeItem) {
+                selectedThemeItem.classList.add('active');
+            }
+            activeTheme = theme; // Set the active theme
+
+            // Reset filters when a new theme is selected
+            archetypeFilter.value = "";
+            rulingFilter.value = "";
+            commandProhibitionFilter.value = "";
+
+            displayVerses(activeTheme, "", "", ""); // Display verses for the selected theme
+        }
+
+        // Event listeners for filters
+        archetypeFilter.addEventListener('change', () => {
+            displayVerses(activeTheme, archetypeFilter.value, rulingFilter.value, commandProhibitionFilter.value);
+        });
+        rulingFilter.addEventListener('change', () => {
+            displayVerses(activeTheme, archetypeFilter.value, rulingFilter.value, commandProhibitionFilter.value);
+        });
+        commandProhibitionFilter.addEventListener('change', () => {
+            displayVerses(activeTheme, archetypeFilter.value, rulingFilter.value, commandProhibitionFilter.value);
+        });
+
+
+        // Initial setup
+        populateThemes();
+        populateFilters();
+        // Optionally, select the first theme by default or show a welcome message
+        if (allThemes.length > 0) {
+            selectTheme(allThemes[0]); // Select the first theme on load
+        } else {
+            verseDisplayArea.innerHTML = `<h2 class="text-2xl font-bold mb-6 text-[#4A90E2]">No thematic data available.</h2>`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic: Foundations of Faith & Guidance - Surah Al-Baqarah Insights</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Application Structure Plan: 
+        A single-page, scrollable infographic.
+        1. Hero Section: Title and brief intro to Surah Al-Baqarah as guidance.
+        2. "Market Segmentation" (Human Archetypes): Cards for Righteous, Disbelievers, Hypocrites with key traits & fates. Comparative bar chart.
+        3. "Key Historical Developments" (Narratives): Summaries of Adam, Children of Israel, Saul/Goliath/David using HTML/CSS flow-like structures.
+        4. "Core Product Offerings" (Theological Concepts): Allah's Attributes, Last Day, Angels - presented with icons (Unicode) and text.
+        5. "Operational Blueprint" (Ethical/Legal Frameworks): Pillars of Worship (Donut Chart), Social, Family, Financial ethics (structured lists).
+        6. "Illustrative Case Studies" (Parables): Key parables in card format.
+        7. "Strategic Outlook" (Conclusion): Enduring message.
+        This narrative flow aims to present the report's complex information in a digestible, engaging, infographic style.
+    -->
+    <!-- Visualization & Content Choices:
+        - Human Archetypes Table (Report) -> Goal: Compare -> Viz: Bar Chart (Chart.js) for trait counts, HTML Cards for details. Justification: Visual summary of distinctions, detailed textual support. NO SVG.
+        - Pillars of Worship (Report) -> Goal: Inform/Organize -> Viz: Donut Chart (Chart.js) for symbolic representation, HTML list for details. Justification: Quick visual of core components, textual explanation. NO SVG.
+        - Narratives (Adam, Children of Israel, etc.) -> Goal: Organize/Change (Events over time) -> Viz: Structured HTML/CSS with Tailwind (borders, flex/grid for flow). Justification: Visual storytelling without SVG/Mermaid.
+        - Parables (Report) -> Goal: Inform -> Viz: HTML Cards with key takeaways. Justification: Concise presentation of moral lessons. NO SVG.
+        - Allah's Attributes, Last Day -> Goal: Inform -> Viz: Text with Unicode icons (e.g., 🌟, ⚖️). Justification: Simple, symbolic visual aid for concepts. NO SVG.
+    -->
+    <style>
+        body { font-family: 'Roboto', sans-serif; } /* Changed font for a more modern infographic feel */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Default max-width */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Default height */
+            max-height: 400px; /* Max height */
+        }
+        @media (max-width: 768px) { /* Smaller screens */
+            .chart-container {
+                height: 300px;
+                max-height: 350px;
+            }
+        }
+        .section-title {
+            font-size: 2.25rem; /* 36px */
+            font-weight: 700;
+            margin-bottom: 1.5rem; /* 24px */
+            color: #073B4C; /* Dark Blue from palette */
+            text-align: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #118AB2; /* Medium Blue */
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem; /* 12px */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem; /* 24px */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .stat-number {
+            font-size: 3rem; /* 48px */
+            font-weight: 800;
+            color: #118AB2; /* Medium Blue */
+            line-height: 1;
+        }
+        .flow-step {
+            background-color: #E0F7FA; /* Light Cyan/Blue */
+            border-left: 4px solid #06D6A0; /* Green */
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+        .flow-arrow {
+            text-align: center;
+            font-size: 1.5rem; /* 24px */
+            color: #118AB2; /* Medium Blue */
+            margin: 0.5rem 0;
+        }
+        /* Palette: Dark Blue: #073B4C, Medium Blue: #118AB2, Green: #06D6A0, Yellow: #FFD166, Coral: #FF6B6B */
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-700">
+
+    <header class="bg-gradient-to-r from-[#073B4C] to-[#118AB2] text-white py-16 px-6 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">The Foundations of Faith & Guidance</h1>
+        <p class="text-xl md:text-2xl mb-6 max-w-3xl mx-auto">An Infographic Exploration of Surah Al-Baqarah (Verses 2-286)</p>
+        <p class="text-lg max-w-2xl mx-auto">This sacred scripture is "the Book about which there is no doubt, a guidance for those conscious of Allah." This infographic delves into its core themes, human archetypes, historical lessons, and ethical frameworks.</p>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+
+        <section id="archetypes" class="mb-16">
+            <h2 class="section-title">Humanity's Response to Guidance: Key Archetypes</h2>
+            <p class="text-center text-lg mb-10 max-w-2xl mx-auto">Surah Al-Baqarah categorizes humanity based on their response to divine guidance. Understanding these archetypes provides insight into spiritual paths and their outcomes.</p>
+            <div class="grid md:grid-cols-3 gap-8 mb-12">
+                <div class="card">
+                    <h3 class="text-2xl font-semibold text-[#06D6A0] mb-3">The Righteous (Al-Muttaqin)</h3>
+                    <p class="mb-2"><strong class="text-gray-800">Core Traits:</strong> Believe in unseen, establish prayer, spend from provisions, certain of Hereafter, patient, submissive, grateful, fulfill promises.</p>
+                    <p><strong class="text-gray-800">Ultimate Fate:</strong> Divine guidance, success, Paradise, "no fear will there be concerning them, nor will they grieve."</p>
+                    <div class="mt-4 text-center">
+                        <span class="stat-number text-[#06D6A0]">✓</span>
+                        <p class="text-sm text-gray-500">Path to Success & Peace</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-2xl font-semibold text-[#FF6B6B] mb-3">The Disbelievers (Al-Kafirun)</h3>
+                    <p class="mb-2"><strong class="text-gray-800">Core Traits:</strong> Unresponsive to warnings, hearts sealed, purchased error for guidance, deny signs, break covenants, arrogant.</p>
+                    <p><strong class="text-gray-800">Ultimate Fate:</strong> Great punishment, eternal Fire, "transaction has brought no profit," Allah's curse.</p>
+                    <div class="mt-4 text-center">
+                        <span class="stat-number text-[#FF6B6B]">✗</span>
+                        <p class="text-sm text-gray-500">Path to Loss & Punishment</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-2xl font-semibold text-[#FFD166] mb-3">The Hypocrites (Al-Munafiqun)</h3>
+                    <p class="mb-2"><strong class="text-gray-800">Core Traits:</strong> Deceptive belief, diseased hearts, claim reform but corrupt, mock believers, selective adherence.</p>
+                    <p><strong class="text-gray-800">Ultimate Fate:</strong> Increased disease, painful punishment, Allah mocks them, disgrace in this world and Hereafter.</p>
+                    <div class="mt-4 text-center">
+                        <span class="stat-number text-[#FFD166]"> deceptive </span>
+                        <p class="text-sm text-gray-500">Path of Deception & Severe Consequence</p>
+                    </div>
+                </div>
+            </div>
+            <h3 class="text-xl font-semibold text-[#073B4C] mb-4 text-center">Comparative Overview: Key Characteristics</h3>
+            <p class="text-center text-md mb-6 max-w-xl mx-auto">The following chart illustratively summarizes the prevalence of distinct positive or negative characteristics and fates mentioned for each archetype in the source analysis.</p>
+            <div class="chart-container bg-white p-4 rounded-lg shadow-lg">
+                <canvas id="archetypeComparisonChart"></canvas>
+            </div>
+        </section>
+
+        <section id="narratives" class="mb-16">
+            <h2 class="section-title">Narratives of Guidance: Lessons from History</h2>
+            <p class="text-center text-lg mb-10 max-w-2xl mx-auto">The Quran uses historical accounts as powerful teaching tools, illustrating divine principles and the consequences of human actions.</p>
+            <div class="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="card md:col-span-1 lg:col-span-1">
+                    <h3 class="text-xl font-semibold text-[#118AB2] mb-3">Adam: Vicegerency & The Test</h3>
+                    <div class="space-y-3">
+                        <div class="flow-step"><strong>1. Divine Plan:</strong> Allah declares intention to make Adam a "successive authority" on Earth.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>2. Unique Knowledge:</strong> Adam taught "the names," demonstrating intellectual capacity.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>3. Iblees's Arrogance:</strong> Refuses to prostrate, becoming a disbeliever due to pride.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>4. The Slip & Expulsion:</strong> Satan causes Adam and his wife to err, leading to expulsion from Paradise.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>5. Repentance & Guidance:</strong> Adam repents, Allah accepts, promising guidance for humanity.</div>
+                    </div>
+                    <p class="mt-4 italic text-sm text-gray-600"><strong>Key Insight:</strong> Highlights human potential, the danger of pride, and the path of repentance.</p>
+                </div>
+                <div class="card md:col-span-1 lg:col-span-1">
+                    <h3 class="text-xl font-semibold text-[#118AB2] mb-3">Children of Israel: Favors & Transgressions</h3>
+                     <div class="space-y-3">
+                        <div class="flow-step"><strong>1. Divine Favors:</strong> Rescue from Pharaoh, manna & quails, twelve springs.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>2. Covenant & Disobedience:</strong> Calf worship, demanding to see Allah, altering words, Sabbath transgression.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>3. Excessive Questioning:</strong> The story of the cow illustrates reluctance and complicating commands.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>4. Hardened Hearts:</strong> Despite signs, hearts became "like stones or even harder."</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>5. Consequences:</strong> Humiliation, poverty, and Allah's anger for persistent disbelief and killing prophets.</div>
+                    </div>
+                    <p class="mt-4 italic text-sm text-gray-600"><strong>Key Insight:</strong> A case study on ingratitude, rebellion, and the consequences of breaking covenants.</p>
+                </div>
+                <div class="card md:col-span-1 lg:col-span-1">
+                    <h3 class="text-xl font-semibold text-[#118AB2] mb-3">Saul, Goliath & David: Faith and Leadership</h3>
+                    <div class="space-y-3">
+                        <div class="flow-step"><strong>1. Request for King:</strong> People ask for a king to fight in Allah's way.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>2. Saul Chosen:</strong> Selected for knowledge and stature, not wealth.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>3. The River Test:</strong> Filters the disciplined and obedient soldiers.</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>4. Faith Over Numbers:</strong> "How many a small company has overcome a large company by permission of Allah."</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step"><strong>5. Victory & Divine Grant:</strong> David kills Goliath; Allah grants David kingship and prophethood.</div>
+                    </div>
+                    <p class="mt-4 italic text-sm text-gray-600"><strong>Key Insight:</strong> Divine criteria for leadership, power of faith, and victory through patience and divine support.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="theology" class="mb-16">
+            <h2 class="section-title">Foundational Beliefs: Understanding the Divine</h2>
+            <p class="text-center text-lg mb-10 max-w-2xl mx-auto">Surah Al-Baqarah articulates core theological concepts that shape the believer's worldview.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card text-center">
+                    <div class="text-5xl mb-4 text-[#118AB2]">ﷻ</div>
+                    <h3 class="text-xl font-semibold text-[#073B4C] mb-2">Allah's Attributes</h3>
+                    <p>One God (Tawhid), All-Knowing (Al-Alim), All-Encompassing (Al-Wasi'), Merciful (Ar-Rahim), Forgiving (Al-Ghafur), Powerful (Al-Qadir), Wise (Al-Hakim), Creator (Al-Khaliq), Sustainer (Ar-Razzaq). His nature is balanced: merciful yet just.</p>
+                </div>
+                <div class="card text-center">
+                    <div class="text-5xl mb-4 text-[#06D6A0]">⚖️</div>
+                    <h3 class="text-xl font-semibold text-[#073B4C] mb-2">The Last Day (Hereafter)</h3>
+                    <p>An inevitable day of judgment and recompense. Individual accountability where every soul is compensated for its deeds. Eternal bliss for the righteous, severe punishment for disbelievers. The true measure of success and loss.</p>
+                </div>
+                <div class="card text-center">
+                     <div class="text-5xl mb-4 text-[#FFD166]">✨</div>
+                    <h3 class="text-xl font-semibold text-[#073B4C] mb-2">Angels in Divine Order</h3>
+                    <p>Integral to divine order: observers, perfectly obedient executors of Allah's commands (e.g., Gabriel conveying revelation). Belief in angels is a fundamental tenet of faith.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="ethics-law" class="mb-16">
+            <h2 class="section-title">A Blueprint for Righteous Living</h2>
+            <p class="text-center text-lg mb-10 max-w-2xl mx-auto">The Surah provides a comprehensive ethical and legal framework for individual and societal well-being.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-[#118AB2] mb-4">Pillars of Worship</h3>
+                    <p class="mb-4">Foundational acts connecting believers with Allah and fostering piety.</p>
+                    <div class="chart-container" style="height: 300px; max-height: 300px;">
+                        <canvas id="pillarsChart"></canvas>
+                    </div>
+                    <ul class="list-disc list-inside mt-4 space-y-1">
+                        <li><strong>Prayer (Salat):</strong> Establish prayer, seek help through patience and prayer.</li>
+                        <li><strong>Charity (Zakah):</strong> Spend from provisions, purify wealth, support needy.</li>
+                        <li><strong>Fasting (Sawm):</strong> Decreed for righteousness, especially in Ramadhan.</li>
+                        <li><strong>Hajj & Umrah:</strong> Pilgrimage to be completed for Allah, with specific rites.</li>
+                    </ul>
+                     <p class="mt-2 italic text-sm text-gray-600">Allah intends ease, not hardship, in these obligations.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-[#06D6A0] mb-4">Social & Financial Ethics</h3>
+                    <ul class="space-y-3">
+                        <li><strong class="text-gray-800">Justice:</strong> Uphold fairness, legal retribution with room for forgiveness, write debts justly.</li>
+                        <li><strong class="text-gray-800">Patience & Good Words:</strong> Seek help through patience; kind speech is better than charity followed by injury.</li>
+                        <li><strong class="text-gray-800">Covenants:</strong> Fulfill Allah's covenant; breaking them is a trait of losers.</li>
+                        <li><strong class="text-gray-800">Avoiding Corruption:</strong> Do not cause corruption on earth; sincerity is key.</li>
+                        <li><strong class="text-gray-800">Family Law:</strong> Clear guidelines for marriage, divorce (emphasizing good treatment), breastfeeding, inheritance.</li>
+                        <li><strong class="text-gray-800">Financial Integrity:</strong> Strong prohibition of Interest (Riba), emphasis on transparency, trust, and ethical earnings.</li>
+                    </ul>
+                    <p class="mt-4 italic text-sm text-gray-600">These principles aim to create a just, compassionate, and transparent society.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="parables" class="mb-16">
+            <h2 class="section-title">Wisdom in Parables: Illustrations for Reflection</h2>
+            <p class="text-center text-lg mb-10 max-w-2xl mx-auto">Surah Al-Baqarah uses vivid parables to convey deep spiritual truths and moral lessons.</p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card bg-blue-50 border-l-4 border-[#118AB2]">
+                    <h4 class="font-semibold text-lg text-[#073B4C] mb-2">Parables of Disbelief</h4>
+                    <p class="text-sm"><strong>Kindled Fire/Rainstorm:</strong> Illustrate temporary "light" or selective engagement with truth, leading to spiritual blindness and paralysis.</p>
+                </div>
+                <div class="card bg-red-50 border-l-4 border-[#FF6B6B]">
+                    <h4 class="font-semibold text-lg text-red-700 mb-2">Hardening of Hearts</h4>
+                    <p class="text-sm">Hearts can become "like stones or even harder," more unresponsive than inanimate objects, warning against spiritual apathy.</p>
+                </div>
+                <div class="card bg-green-50 border-l-4 border-[#06D6A0]">
+                    <h4 class="font-semibold text-lg text-green-700 mb-2">Parables of Charity</h4>
+                    <p class="text-sm"><strong>The Seed:</strong> Exponential reward for sincere charity. <strong>Smooth Stone:</strong> Insincere charity yields nothing. <strong>Flourishing Garden:</strong> Sincere deeds always bear fruit.</p>
+                </div>
+                <div class="card bg-yellow-50 border-l-4 border-[#FFD166] md:col-span-2 lg:col-span-3">
+                    <h4 class="font-semibold text-lg text-yellow-700 mb-2">Fragility of Worldly Life (The Burned Garden)</h4>
+                    <p class="text-sm">Worldly achievements, without a spiritual foundation, can be destroyed instantly, especially when one is most vulnerable. Urges prioritizing spiritual investments.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="conclusion" class="py-12 bg-[#073B4C] text-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold mb-6">The Enduring Message: A Call to Action</h2>
+                <p class="text-lg mb-4 max-w-3xl mx-auto">Surah Al-Baqarah provides a comprehensive blueprint for human existence, guiding towards fundamental beliefs, historical lessons, ethical conduct, and legal precepts.</p>
+                <p class="text-xl font-semibold">It is a consistent call to recognize Allah's sovereignty, submit to His will, and live a life of integrity and purpose, thereby securing success in this world and the Hereafter.</p>
+            </div>
+        </section>
+    </main>
+
+<script>
+    function wrapLabel(str, maxWidth) {
+        if (str.length <= maxWidth) {
+            return str;
+        }
+        const words = str.split(' ');
+        let currentLine = '';
+        const lines = [];
+        for (const word of words) {
+            if ((currentLine + word).length > maxWidth && currentLine.length > 0) {
+                lines.push(currentLine.trim());
+                currentLine = '';
+            }
+            currentLine += word + ' ';
+        }
+        if (currentLine.trim().length > 0) {
+            lines.push(currentLine.trim());
+        }
+        return lines;
+    }
+
+    const tooltipTitleCallback = function(tooltipItems) {
+        const item = tooltipItems[0];
+        let label = item.chart.data.labels[item.dataIndex];
+        if (Array.isArray(label)) {
+            return label.join(' ');
+        } else {
+            return label;
+        }
+    };
+    
+    // Chart 1: Archetype Comparison
+    const archetypeCtx = document.getElementById('archetypeComparisonChart').getContext('2d');
+    new Chart(archetypeCtx, {
+        type: 'bar',
+        data: {
+            labels: [
+                wrapLabel('The Righteous (Al-Muttaqin)', 16), 
+                wrapLabel('The Disbelievers (Al-Kafirun)', 16), 
+                wrapLabel('The Hypocrites (Al-Munafiqun)', 16)
+            ],
+            datasets: [{
+                label: 'Illustrative Count of Key Positive Traits/Fates',
+                data: [8, 0, 0], // Example data
+                backgroundColor: '#06D6A0', // Green
+                borderColor: '#05A67A',
+                borderWidth: 1
+            }, {
+                label: 'Illustrative Count of Key Negative Traits/Fates',
+                data: [0, 10, 9], // Example data
+                backgroundColor: '#FF6B6B', // Coral
+                borderColor: '#E05252',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#073B4C' } // Dark Blue
+                },
+                x: {
+                    ticks: { color: '#073B4C' } // Dark Blue
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: '#073B4C' } // Dark Blue
+                },
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    }
+                }
+            }
+        }
+    });
+
+    // Chart 2: Pillars of Worship
+    const pillarsCtx = document.getElementById('pillarsChart').getContext('2d');
+    new Chart(pillarsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Prayer (Salat)', 'Charity (Zakah)', 'Fasting (Sawm)', 'Hajj & Umrah'],
+            datasets: [{
+                label: 'Pillars of Worship',
+                data: [25, 25, 25, 25], // Symbolic equal representation
+                backgroundColor: ['#118AB2', '#06D6A0', '#FFD166', '#FF6B6B'], // Medium Blue, Green, Yellow, Coral
+                borderColor: ['#0D6E8E', '#05A67A', '#EAA94F', '#E05252'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#073B4C' } // Dark Blue
+                },
+                tooltip: {
+                     callbacks: {
+                        title: tooltipTitleCallback,
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            // For doughnut, value is directly context.parsed
+                            label += context.parsed + '% (Symbolic)';
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

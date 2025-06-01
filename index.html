@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surah Al-Baqarah: Interactive Study Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* Lightest Blue-Gray */
+            color: #2C3E50; /* Dark Navy */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #4A90E2; /* Darker Blue */
+            color: white;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.15);
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            border: 1px solid #E0F7FA;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+        .card-icon {
+            font-size: 3.5rem; /* Larger icons */
+            margin-bottom: 1rem;
+            color: #2ECC71; /* Emerald Green */
+        }
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4A90E2; /* Darker Blue */
+            margin-bottom: 0.5rem;
+        }
+        .card-description {
+            font-size: 0.95rem;
+            color: #5D6D7E; /* Medium Gray */
+            margin-bottom: 1.5rem;
+            flex-grow: 1; /* Allows description to take available space */
+        }
+        .card-link {
+            display: inline-block;
+            background-color: #70B8E1; /* Main Blue */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .card-link:hover {
+            background-color: #5A9BDC; /* Slightly darker blue */
+            transform: translateY(-1px);
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-grow: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.5rem 1rem;
+            }
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.1rem;
+            }
+            .main-grid {
+                padding: 2rem 1rem;
+                grid-template-columns: 1fr; /* Stack cards on small screens */
+            }
+            .card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 drop-shadow-md">Surah Al-Baqarah: Interactive Study Hub</h1>
+        <p class="text-xl md:text-2xl max-w-3xl mx-auto opacity-90">Unlock a deeper understanding of the Quran's longest chapter through interactive tools and visual explorations.</p>
+    </header>
+
+    <main class="main-grid">
+        <div class="card">
+            <span class="card-icon">✨</span>
+            <h2 class="card-title">Interactive Explorer (SPA)</h2>
+            <p class="card-description">A single-page application integrating various aspects of Surah Al-Baqarah analysis, offering a holistic and interactive learning experience.</p>
+            <a href="SPA.html" class="card-link">Launch Explorer</a>
+        </div>
+
+        <div class="card">
+            <span class="card-icon">🧠</span>
+            <h2 class="card-title">Concept Mapper</h2>
+            <p class="card-description">Visually organize and connect key themes, archetypes, and rulings from Surah Al-Baqarah. Drag, drop, and link concepts to build your own mind maps.</p>
+            <a href="Concept Mapper.html" class="card-link">Explore Concepts</a>
+        </div>
+
+        <div class="card">
+            <span class="card-icon">📚</span>
+            <h2 class="card-title">Thematic Verse Explorer</h2>
+            <p class="card-description">Navigate Surah Al-Baqarah by overarching themes. Discover relevant verses, translations, and analysis snippets, with filtering options for deeper insights.</p>
+            <a href="Thematic Explorer.html" class="card-link">Browse Themes</a>
+        </div>
+
+        <div class="card">
+            <span class="card-icon">💡</span>
+            <h2 class="card-title">Scenario-Based Learning</h2>
+            <p class="card-description">Apply Quranic principles to real-world situations. Make decisions in hypothetical scenarios and receive detailed feedback based on the Surah's teachings.</p>
+            <a href="Scenario-Based Learning.html" class="card-link">Start Scenarios</a>
+        </div>
+
+        <div class="card">
+            <span class="card-icon">⏳</span>
+            <h2 class="card-title">Narrative Timeline</h2>
+            <p class="card-description">Explore the major historical narratives and significant events mentioned in Surah Al-Baqarah. Click on events to reveal summaries, characters, and profound lessons.</p>
+            <a href="Narrative Timeline.html" class="card-link">View Timeline</a>
+        </div>
+
+        <div class="card">
+            <span class="card-icon">📖</span>
+            <h2 class="card-title">Interactive Study Guide</h2>
+            <p class="card-description">A comprehensive guide with collapsible sections, interactive annotations for Arabic terms, and "check your understanding" questions for self-paced learning.</p>
+            <a href="Interactive Study Guide.html" class="card-link">Open Study Guide</a>
+        </div>
+
+        <div class="card">
+            <span class="card-icon">📊</span>
+            <h2 class="card-title">Infographic Overview</h2>
+            <p class="card-description">A visually engaging infographic summarizing the foundations of faith, human archetypes, and ethical frameworks from Surah Al-Baqarah with charts and structured content.</p>
+            <a href="Infographic.html" class="card-link">See Infographic</a>
+        </div>
+    </main>
+
+</body>
+</html>

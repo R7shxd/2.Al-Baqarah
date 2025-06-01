@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Timeline: Quranic Narratives in Surah Al-Baqarah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* Lightest Blue-Gray */
+            color: #2C3E50; /* Dark Navy */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            background-color: #4A90E2; /* Darker Blue */
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: row; /* Default for larger screens */
+            overflow: hidden; /* Manage internal scrolling */
+        }
+        .timeline-sidebar {
+            width: 300px; /* Fixed width for sidebar on larger screens */
+            background-color: #E0F7FA; /* Light Blue */
+            padding: 1.5rem;
+            overflow-y: auto; /* Enable scrolling for timeline */
+            flex-shrink: 0;
+            box-shadow: 4px 0 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative; /* For the vertical line */
+        }
+        .timeline-line {
+            position: absolute;
+            left: 50px; /* Position of the vertical line */
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #A7D9F0; /* Medium Light Blue */
+            border-radius: 2px;
+        }
+        .timeline-event {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            position: relative;
+            padding-left: 70px; /* Space for dot and line */
+            transition: background-color 0.2s ease-in-out;
+            border-radius: 0.5rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .timeline-event:hover {
+            background-color: #CFEEF7;
+        }
+        .timeline-event.active {
+            background-color: #4A90E2; /* Darker Blue */
+            color: white;
+            font-weight: 600;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 40px; /* Position of the dot on the line */
+            width: 20px;
+            height: 20px;
+            background-color: #70B8E1; /* Main Blue */
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #70B8E1;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+        .timeline-event.active .timeline-dot {
+            background-color: #2ECC71; /* Emerald Green */
+            border-color: white;
+            box-shadow: 0 0 0 2px #2ECC71;
+        }
+        .timeline-content {
+            flex-grow: 1;
+            background-color: #FFFFFF;
+            padding: 2rem;
+            overflow-y: auto; /* Enable scrolling for content */
+            box-shadow: -4px 0 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .detail-card {
+            background-color: #F0F8FF; /* Lighter Blue */
+            border: 1px solid #D0E7F5;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .detail-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #4A90E2;
+            margin-bottom: 1rem;
+        }
+        .detail-subtitle {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2ECC71;
+            margin-bottom: 0.75rem;
+        }
+        .detail-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .detail-list {
+            list-style-type: disc;
+            margin-left: 1.25rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .detail-list li strong {
+            color: #4A90E2;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column; /* Stack on small screens */
+            }
+            .timeline-sidebar {
+                width: 100%;
+                max-height: 300px; /* Limit height on small screens */
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Shadow at bottom */
+                order: 1; /* Place timeline above content */
+            }
+            .timeline-line {
+                left: 20px; /* Adjust line position for smaller screens */
+            }
+            .timeline-event {
+                padding-left: 50px;
+            }
+            .timeline-dot {
+                left: 10px;
+            }
+            .timeline-content {
+                width: 100%;
+                min-height: 400px; /* Ensure content area has height */
+                border-left: none; /* Remove left border when stacked */
+                border-top: 1px solid #E0F7FA; /* Add top border */
+                box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1); /* Shadow at top */
+                order: 2; /* Place content below timeline */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1 class="text-3xl font-bold">Surah Al-Baqarah: Narrative Timeline</h1>
+        <p class="text-lg opacity-90 mt-1">Explore historical events and their profound lessons.</p>
+    </header>
+
+    <div class="main-container">
+        <aside class="timeline-sidebar" id="timelineSidebar">
+            <div class="timeline-line"></div>
+            <h2 class="text-xl font-semibold mb-4 text-[#4A90E2]">Key Narratives</h2>
+            <div id="timelineEvents">
+                </div>
+        </aside>
+
+        <section class="timeline-content" id="eventDetails">
+            <h2 class="text-2xl font-bold mb-6 text-[#4A90E2]">Click an event on the left to view details.</h2>
+            </section>
+    </div>
+
+    <script>
+        // Data for timeline events
+        const timelineData = [
+            {
+                id: 'adam-creation',
+                title: 'Creation of Adam',
+                era: 'Early Humanity',
+                summary: 'Allah declares His intention to create a successive authority (Khalifa) on Earth. Adam is taught the names of all things, demonstrating his intellectual superiority over angels. Iblees (Satan) refuses to prostrate to Adam out of arrogance, leading to his expulsion. Adam and his wife slip due to Satan\'s temptation but repent, and Allah accepts their repentance.',
+                keyCharacters: ['Allah', 'Adam', 'Iblees (Satan)', 'Angels'],
+                lessons: [
+                    'Humanity\'s unique potential and divine trust as vicegerents on Earth.',
+                    'The danger of arrogance and disobedience to divine command.',
+                    'The power of sincere repentance and Allah\'s acceptance of it.',
+                    'The beginning of humanity\'s journey on Earth with divine guidance.'
+                ],
+                relevantVerses: ['2:30-39']
+            },
+            {
+                id: 'israel-exodus',
+                title: 'Exodus & Divine Favors',
+                era: 'Prophet Musa\'s Era',
+                summary: 'Allah reminds the Children of Israel of His favors: rescuing them from Pharaoh, parting the sea, providing manna and quails in the desert, and causing twelve springs to gush forth from a rock. These were immense blessings despite their subsequent ingratitude.',
+                keyCharacters: ['Allah', 'Prophet Musa (Moses)', 'Children of Israel', 'Pharaoh'],
+                lessons: [
+                    'The immensity of Allah\'s mercy and provision for His servants.',
+                    'The importance of gratitude for divine blessings.',
+                    'The consequences of ingratitude and complaining despite abundant favors.'
+                ],
+                relevantVerses: ['2:49-60']
+            },
+            {
+                id: 'israel-covenant',
+                title: 'Covenant & Transgressions',
+                era: 'Prophet Musa\'s Era',
+                summary: 'The Children of Israel repeatedly broke their covenants with Allah, including the covenant at Mount Sinai. Their transgressions included calf worship, demanding to see Allah, altering divine words, killing prophets, and violating the Sabbath (leading to their transformation into apes). They also showed excessive questioning regarding the command to slaughter a cow.',
+                keyCharacters: ['Allah', 'Prophet Musa (Moses)', 'Children of Israel'],
+                lessons: [
+                    'The gravity of breaking covenants with Allah.',
+                    'The dangers of spiritual stubbornness, nitpicking, and selective belief.',
+                    'Divine consequences for persistent disobedience and rebellion.',
+                    'The hardening of hearts due to continuous rejection of truth.'
+                ],
+                relevantVerses: ['2:61-74', '2:83-87', '2:91-93', '2:100']
+            },
+            {
+                id: 'saul-goliath-david',
+                title: 'Saul, Goliath & David',
+                era: 'Prophet David\'s Era',
+                summary: 'The Children of Israel request a king to fight in Allah\'s way. Allah chooses Saul (Talut), based on his knowledge and stature, not wealth. Saul tests his army at a river, filtering out all but the truly obedient. David, a young man, kills the giant Goliath by Allah\'s permission, demonstrating that victory comes from Allah. David is subsequently granted kingship and prophethood.',
+                keyCharacters: ['Allah', 'Saul (Talut)', 'Goliath', 'Prophet David'],
+                lessons: [
+                    'Divine criteria for leadership (knowledge, stature) over worldly status.',
+                    'The importance of obedience, discipline, and patience in the face of adversity.',
+                    'Faith triumphs over overwhelming odds with divine support.',
+                    'Victory comes from Allah, not merely numbers or strength.'
+                ],
+                relevantVerses: ['2:246-251']
+            },
+            {
+                id: 'riba-prohibition',
+                title: 'Prohibition of Riba (Interest)',
+                era: 'Prophet Muhammad\'s Era',
+                summary: 'Surah Al-Baqarah contains a severe condemnation of Riba (interest/usury), differentiating it fundamentally from lawful trade. Allah declares war on those who persist in consuming Riba, stating that He destroys interest and gives increase for charities. This emphasizes justice and fairness in financial dealings.',
+                keyCharacters: ['Allah', 'Believers', 'Those who consume Riba'],
+                lessons: [
+                    'The severe prohibition of exploitative financial practices.',
+                    'The importance of ethical financial dealings based on justice and charity.',
+                    'The spiritual consequences of violating divine economic laws.'
+                ],
+                relevantVerses: ['2:275-281']
+            },
+            {
+                id: 'debt-command',
+                title: 'Command to Document Debts',
+                era: 'Prophet Muhammad\'s Era',
+                summary: 'The longest verse in the Quran (2:282) provides detailed instructions for documenting debts and financial transactions. It mandates writing down agreements, having witnesses, and ensuring justice and clarity in all dealings to prevent disputes and uphold trust.',
+                keyCharacters: ['Allah', 'Believers', 'Scribes', 'Witnesses'],
+                lessons: [
+                    'The importance of transparency and documentation in financial matters.',
+                    'The emphasis on justice and prevention of disputes in economic interactions.',
+                    'The value of upholding trust (Amanah) in all dealings.'
+                ],
+                relevantVerses: ['2:282']
+            },
+            {
+                id: 'final-verses',
+                title: 'Declaration of Faith & Supplication',
+                era: 'Prophet Muhammad\'s Era',
+                summary: 'The concluding verses (2:285-286) are a powerful declaration of faith by the Messenger and believers, affirming belief in Allah, His angels, books, and messengers without distinction. They express complete submission ("We hear and we obey") and culminate in a profound prayer for forgiveness, ease in religious obligations, and victory over disbelievers, affirming that Allah burdens no soul beyond its capacity.',
+                keyCharacters: ['Allah', 'Messenger', 'Believers'],
+                lessons: [
+                    'The comprehensive nature of Islamic faith (belief in all prophets).',
+                    'The importance of submission and obedience to Allah.',
+                    'Allah\'s mercy and justice: He burdens no soul beyond its capacity.',
+                    'The power of supplication and seeking forgiveness from Allah.'
+                ],
+                relevantVerses: ['2:285-286']
+            }
+        ];
+
+        const timelineEventsDiv = document.getElementById('timelineEvents');
+        const eventDetailsDiv = document.getElementById('eventDetails');
+        let activeEventId = null;
+
+        function renderTimeline() {
+            timelineEventsDiv.innerHTML = ''; // Clear existing events
+            timelineData.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'timeline-event';
+                eventElement.dataset.id = event.id;
+                eventElement.innerHTML = `
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-text">
+                        <h3 class="font-semibold">${event.title}</h3>
+                        <p class="text-xs opacity-75">${event.era}</p>
+                    </div>
+                `;
+                eventElement.addEventListener('click', () => selectEvent(event.id));
+                timelineEventsDiv.appendChild(eventElement);
+            });
+        }
+
+        function displayEventDetails(eventId) {
+            const event = timelineData.find(e => e.id === eventId);
+            if (!event) {
+                eventDetailsDiv.innerHTML = `<h2 class="text-2xl font-bold mb-6 text-[#4A90E2]">Event details not found.</h2>`;
+                return;
+            }
+
+            let keyCharactersHtml = event.keyCharacters.map(char => `<li><strong>${char}</strong></li>`).join('');
+            let lessonsHtml = event.lessons.map(lesson => `<li>${lesson}</li>`).join('');
+
+            eventDetailsDiv.innerHTML = `
+                <div class="detail-card">
+                    <h2 class="detail-title">${event.title}</h2>
+                    <p class="detail-text">${event.summary}</p>
+
+                    <h3 class="detail-subtitle">Key Characters</h3>
+                    <ul class="detail-list">
+                        ${keyCharactersHtml}
+                    </ul>
+
+                    <h3 class="detail-subtitle">Profound Lessons</h3>
+                    <ul class="detail-list">
+                        ${lessonsHtml}
+                    </ul>
+
+                    <p class="text-sm text-gray-600 mt-4">
+                        <strong>Relevant Verses:</strong> ${event.relevantVerses.join(', ')}
+                    </p>
+                </div>
+            `;
+        }
+
+        function selectEvent(eventId) {
+            // Remove active class from previous event
+            if (activeEventId) {
+                const prevActive = document.querySelector(`.timeline-event[data-id="${activeEventId}"]`);
+                if (prevActive) {
+                    prevActive.classList.remove('active');
+                }
+            }
+
+            // Add active class to new event
+            const newActive = document.querySelector(`.timeline-event[data-id="${eventId}"]`);
+            if (newActive) {
+                newActive.classList.add('active');
+            }
+            activeEventId = eventId;
+
+            displayEventDetails(eventId);
+        }
+
+        // Initial render on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTimeline();
+            if (timelineData.length > 0) {
+                selectEvent(timelineData[0].id); // Select and display details for the first event
+            }
+        });
+    </script>
+</body>
+</html>

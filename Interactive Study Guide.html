@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Study Guide: Surah Al-Baqarah Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Application Structure Plan:
+        A single-page study guide with a main content area.
+        Each major topic (Introduction, Archetypes, Beliefs, Narratives, Ethics, Parables) will be a distinct section.
+        Within each section, sub-topics will use a collapsible (accordion-like) structure, allowing users to expand/collapse details.
+        Arabic terms or complex concepts will have interactive pop-up annotations on hover/click.
+        "Check your understanding" questions will be embedded at the end of key sub-sections, providing immediate feedback.
+        This progressive disclosure approach prevents overload and allows self-paced, focused learning.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* Lightest Blue-Gray */
+            color: #2C3E50; /* Dark Navy */
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .section-title {
+            font-size: 2.25rem; /* 36px */
+            font-weight: 700;
+            color: #70B8E1; /* Main Blue */
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 0.75rem;
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background-color: #2ECC71; /* Emerald Green */
+            border-radius: 2px;
+        }
+        .accordion-button {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background-color: #E0F7FA; /* Light Blue */
+            color: #4A90E2; /* Darker Blue */
+            font-weight: 600;
+            text-align: left;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid #A7D9F0;
+        }
+        .accordion-button:hover {
+            background-color: #CFEEF7; /* Slightly darker light blue */
+            color: #3A72B8; /* Even darker blue */
+        }
+        .accordion-button .icon {
+            transition: transform 0.2s ease-in-out;
+        }
+        .accordion-button.open .icon {
+            transform: rotate(180deg);
+        }
+        .accordion-content {
+            padding: 1rem 1.5rem;
+            background-color: #FFFFFF;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E0F7FA;
+        }
+        .annotation-trigger {
+            position: relative;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-color: #2ECC71; /* Emerald Green */
+            text-underline-offset: 3px;
+            font-weight: 500;
+            color: #4A90E2;
+        }
+        .annotation-popup {
+            position: absolute;
+            background-color: #2C3E50; /* Dark Navy */
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            width: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 120%; /* Position below the trigger */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+        }
+        .annotation-trigger:hover .annotation-popup {
+            opacity: 1;
+            visibility: visible;
+        }
+        .question-block {
+            background-color: #F0F8FF; /* Lighter Blue */
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border: 1px solid #A7D9F0;
+        }
+        .question-option {
+            background-color: #FFFFFF;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+            border: 1px solid #D0E7F5;
+        }
+        .question-option:hover {
+            background-color: #EBF5F9;
+        }
+        .question-option.correct {
+            background-color: #D4EDDA; /* Light Green */
+            border-color: #2ECC71;
+            color: #155724;
+        }
+        .question-option.incorrect {
+            background-color: #F8D7DA; /* Light Red */
+            border-color: #FF6B6B;
+            color: #721C24;
+        }
+        .rationale {
+            font-size: 0.875rem; /* 14px */
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-left: 3px solid;
+        }
+        .rationale.correct {
+            border-color: #2ECC71;
+            color: #155724;
+            background-color: #EBF9EE;
+        }
+        .rationale.incorrect {
+            border-color: #FF6B6B;
+            color: #721C24;
+            background-color: #FEECEF;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-gradient-to-r from-[#70B8E1] to-[#4A90E2] text-white py-16 px-6 text-center shadow-lg">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 drop-shadow-md">Interactive Study Guide: Surah Al-Baqarah</h1>
+        <p class="text-xl md:text-2xl max-w-3xl mx-auto opacity-90">Deep Dive into the Foundations of Faith and Guidance</p>
+        <p class="text-lg max-w-2xl mx-auto mt-4 opacity-80">Explore key themes, narratives, and ethical principles from Surah Al-Baqarah (Verses 2-286) with interactive content and comprehension checks.</p>
+    </header>
+
+    <main class="container py-12">
+
+        <section class="mb-12">
+            <h2 class="section-title">I. Introduction: The Quran as Guidance</h2>
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>Overview and Significance</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <p class="mb-4">Surah Al-Baqarah, the longest chapter of the Quran, serves as a comprehensive foundation for understanding Islamic principles. It begins with the mysterious letters "Alif, Lam, Meem," which symbolize divine knowledge and the miraculous nature of the revelation.</p>
+                    <p class="mb-4">The core assertion of the Surah, stated early on, is that the Quran is "the Book about which there is no doubt, a guidance for those conscious of Allah." This highlights its indisputable authority and its primary role as a beacon for those who seek to live righteously.</p>
+                    <p>The guidance offered is most profoundly realized by the <span class="annotation-trigger" onmouseover="showAnnotation(event, 'Al-Muttaqin', 'Arabic term for 'the righteous' or 'those conscious of Allah'. They are the primary beneficiaries of the Quran\'s guidance.')" onmouseout="hideAnnotation()">Al-Muttaqin</span>, emphasizing the need for a receptive heart and a conscious effort to align with divine will.</p>
+                    <div class="question-block" id="q1">
+                        <p class="font-semibold mb-3">Check Your Understanding:</p>
+                        <p class="mb-3">What is the primary, explicitly stated function of the Quran in the opening verses of Surah Al-Baqarah?</p>
+                        <div class="space-y-2">
+                            <div class="question-option" onclick="checkAnswer('q1', this, false)">To narrate historical events for all people.</div>
+                            <div class="question-option" onclick="checkAnswer('q1', this, false)">To serve as a book of laws for legal scholars.</div>
+                            <div class="question-option" onclick="checkAnswer('q1', this, true)">To be a guidance for those conscious of Allah.</div>
+                            <div class="question-option" onclick="checkAnswer('q1', this, false)">To be a source of literary excellence for poets.</div>
+                        </div>
+                        <div class="rationale hidden" id="q1-rationale"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="section-title">II. Human Archetypes: Paths to Divine Acceptance or Rejection</h2>
+            <p class="mb-6 text-center text-lg max-w-2xl mx-auto">The Surah categorizes humanity into three distinct archetypes based on their response to divine guidance, offering a framework for understanding spiritual paths.</p>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Righteous (Al-Muttaqin)</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <h3 class="text-xl font-semibold text-[#2ECC71] mb-2">Core Characteristics:</h3>
+                    <ul class="list-disc list-inside mb-3 text-sm">
+                        <li>Believe in the unseen, establish prayer, and spend from what Allah has provided.</li>
+                        <li>Believe in what has been revealed to Prophet Muhammad and what was revealed before him.</li>
+                        <li>Are certain of the Hereafter.</li>
+                        <li>Patient, submissive, grateful, perform righteous deeds, fulfill promises, and fight in Allah's cause.</li>
+                    </ul>
+                    <h3 class="text-xl font-semibold text-[#2ECC71] mb-2">Ultimate Fates:</h3>
+                    <p class="text-sm">Upon right guidance from their Lord, they are the successful. They will enter gardens in Paradise, where there will be no fear or grief for them. They are recipients of Allah's kindness and guidance, brought from darkness to light, and ultimately forgiven.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Disbelievers (Al-Kafirun)</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <h3 class="text-xl font-semibold text-[#FF6B6B] mb-2">Core Characteristics:</h3>
+                    <ul class="list-disc list-inside mb-3 text-sm">
+                        <li>Unresponsive to warnings; it is all the same for them whether warned or not.</li>
+                        <li>Hearts, hearing, and vision are sealed by Allah due to their persistent rejection.</li>
+                        <li>They have 'purchased error for guidance,' and their 'transaction has brought no profit.'</li>
+                        <li>Deaf, dumb, and blind to the truth; they deny signs, kill prophets, and break covenants.</li>
+                    </ul>
+                    <h3 class="text-xl font-semibold text-[#FF6B6B] mb-2">Ultimate Fates:</h3>
+                    <p class="text-sm">They face a great and painful punishment. They are losers, encompassed by Allah, and will abide eternally in the Fire. Their punishment will not be lightened, nor will they be aided. They are cursed by Allah, face wrath upon wrath, and will experience humiliating disgrace in this world and the Hereafter.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Hypocrites (Al-Munafiqun)</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <h3 class="text-xl font-semibold text-[#FFD166] mb-2">Core Characteristics:</h3>
+                    <ul class="list-disc list-inside mb-3 text-sm">
+                        <li>Outwardly claim belief but are not true believers; they attempt to deceive Allah and believers (deceiving only themselves).</li>
+                        <li>Their hearts are diseased, and Allah increases their disease due to their deception.</li>
+                        <li>They claim to be reformers but are actually corrupters.</li>
+                        <li>They feign belief with believers but mock with their evil associates; they break covenants and distort scripture.</li>
+                    </ul>
+                    <h3 class="text-xl font-semibold text-[#FFD166] mb-2">Ultimate Fates:</h3>
+                    <p class="text-sm">Allah increases their disease, and they face a painful punishment for their lying. Allah mocks them and prolongs their transgression, leaving them to wander blindly. They are losers and will face the severest punishment in the Hereafter, with Hellfire as a wretched resting place.</p>
+                    <div class="question-block" id="q2">
+                        <p class="font-semibold mb-3">Check Your Understanding:</p>
+                        <p class="mb-3">Which human archetype is characterized by outwardly claiming belief but inwardly harboring disbelief and attempting to deceive others?</p>
+                        <div class="space-y-2">
+                            <div class="question-option" onclick="checkAnswer('q2', this, false)">The Righteous</div>
+                            <div class="question-option" onclick="checkAnswer('q2', this, false)">The Disbelievers</div>
+                            <div class="question-option" onclick="checkAnswer('q2', this, true)">The Hypocrites</div>
+                            <div class="question-option" onclick="checkAnswer('q2', this, false)">The Believers (general)</div>
+                        </div>
+                        <div class="rationale hidden" id="q2-rationale"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="section-title">III. Core Theological Concepts and Divine Attributes</h2>
+            <p class="mb-6 text-center text-lg max-w-2xl mx-auto">This section delves into fundamental theological concepts articulated in Surah Al-Baqarah, crucial for grasping the divine worldview.</p>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Last Day (Hereafter)</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <p class="mb-2">The Last Day is a central tenet of faith, an inevitable event of judgment and recompense. Every soul will be compensated for its deeds, emphasizing individual accountability. For disbelievers, it brings severe, eternal punishment without intercession. For believers, it promises eternal bliss in Paradise, free from fear and grief.</p>
+                    <p class="text-sm italic">The Hereafter is the true measure of success and loss, urging a spiritual perspective on worldly life.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Role and Nature of Angels</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <p class="mb-2">Angels are integral to the divine order, serving as observers, questioners (who ultimately submit to Allah's wisdom), receivers of divine teaching, and perfect executors of Allah's commands. Gabriel (Jibreel) conveyed the Quran. Angels are allies of Allah and believers. Belief in angels is fundamental.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Attributes of Allah</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <p class="mb-2">Allah's attributes reveal His nature and relationship with creation. Key attributes include:</p>
+                    <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                        <li><strong>Oneness (<span class="annotation-trigger" onmouseover="showAnnotation(event, 'Tawhid', 'The absolute oneness and indivisibility of God in Islam. It is the central and most fundamental concept.')" onmouseout="hideAnnotation()">Tawhid</span>):</strong> "Your god is one God."</li>
+                        <li><strong>All-Encompassing (Al-Wasi'), Knowing (Al-Alim):</strong> Knows all things, open and secret.</li>
+                        <li><strong>Merciful (Ar-Rahim), Forgiving (Al-Ghafur), Accepting of Repentance (At-Tawwab):</strong> Abundant mercy and forgiveness.</li>
+                        <li><strong>Powerful (Al-Qadir), Competent, Seeing (Al-Basir), Hearing (As-Sami').</strong></li>
+                        <li><strong>Creator (Al-Khaliq), Originator (Al-Badi'), Sustainer (Ar-Razzaq).</strong></li>
+                    </ul>
+                    <p class="mt-2 text-sm italic">These attributes depict a God who is One, all-knowing, merciful yet just, powerful, and intimately involved with His creation, encouraging both hope and fear.</p>
+                    <div class="question-block" id="q3">
+                        <p class="font-semibold mb-3">Check Your Understanding:</p>
+                        <p class="mb-3">The attribute of Allah, 'Al-Alim', primarily signifies what?</p>
+                        <div class="space-y-2">
+                            <div class="question-option" onclick="checkAnswer('q3', this, false)">The Most Merciful</div>
+                            <div class="question-option" onclick="checkAnswer('q3', this, true)">The All-Knowing</div>
+                            <div class="question-option" onclick="checkAnswer('q3', this, false)">The Sustainer</div>
+                            <div class="question-option" onclick="checkAnswer('q3', this, false)">The Powerful</div>
+                        </div>
+                        <div class="rationale hidden" id="q3-rationale"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="section-title">IV. Narratives of Guidance and Warning: Lessons from History</h2>
+            <p class="mb-6 text-center text-lg max-w-2xl mx-auto">The Quran uses historical narratives as powerful teaching tools, highlighting moral and theological lessons embedded within them.</p>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Creation of Adam: Vicegerency and Iblees' Arrogance</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <p class="mb-2 text-sm">Allah declared His intention to make Adam a "successive authority" on Earth. Angels questioned this, but Allah affirmed His superior knowledge. Adam was taught "the names," demonstrating intellectual capacity justifying his vicegerency.</p>
+                    <p class="mb-2 text-sm">Angels prostrated to Adam upon command, except Iblees (Satan), who refused due to arrogance and became a disbeliever. This highlights pride as a barrier to faith.</p>
+                    <p class="mb-2 text-sm">Adam and his wife were expelled from Paradise after Satan caused them to slip. Adam repented, and Allah accepted it, promising guidance for humanity on Earth.</p>
+                    <p class="mt-2 italic text-sm"><strong>Key Lessons:</strong> Humanity's unique potential and divine trust, the danger of arrogance, the capacity for repentance, and the promise of divine guidance.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Children of Israel: A Detailed Examination</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <h4 class="text-lg font-semibold text-[#4A90E2] mb-2">Divine Favors & Their Responses:</h4>
+                    <p class="mb-2 text-sm">Allah bestowed numerous favors: rescue from Pharaoh, parting of the sea, manna and quails, twelve springs of water. They were instructed to eat good provisions and avoid corruption.</p>
+                    <h4 class="text-lg font-semibold text-[#4A90E2] mt-3 mb-2">Covenants, Transgressions & Consequences:</h4>
+                    <p class="mb-2 text-sm">Despite favors, a pattern of ingratitude, rebellion, and covenant-breaking emerged: calf worship, demanding to see Allah, changing prescribed words, complaining about provisions, killing prophets. This led to humiliation, poverty, and Allah's anger. They transgressed the Sabbath (transformed into apes), showed reluctance and excessive questioning about slaughtering a cow, and their hearts hardened like stones.</p>
+                    <p class="mt-2 italic text-sm"><strong>Key Lessons:</strong> The cyclical nature of divine favor and human ingratitude, consequences of disobedience and covenant-breaking, the importance of sincere submission, and the continuity of divine revelation.</p>
+                    <div class="question-block" id="q4">
+                        <p class="font-semibold mb-3">Check Your Understanding:</p>
+                        <p class="mb-3">What was a recurring pattern in the Children of Israel's response to divine favors?</p>
+                        <div class="space-y-2">
+                            <div class="question-option" onclick="checkAnswer('q4', this, false)">Consistent obedience and gratitude.</div>
+                            <div class="question-option" onclick="checkAnswer('q4', this, true)">Ingratitude, rebellion, and covenant-breaking.</div>
+                            <div class="question-option" onclick="checkAnswer('q4', this, false)">Seeking more and more difficult commands.</div>
+                            <div class="question-option" onclick="checkAnswer('q4', this, false)">Immediate acceptance of all prophets.</div>
+                        </div>
+                        <div class="rationale hidden" id="q4-rationale"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>Saul, Goliath, and David: Faith, Leadership, and Divine Support</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <p class="mb-2 text-sm">The Children of Israel asked for a king to fight in Allah's way. Allah chose Saul (Talut), whom they initially questioned due to his lack of wealth. The prophet clarified that Allah chose him for his knowledge and stature.</p>
+                    <p class="mb-2 text-sm">Saul tested his soldiers with a river; only the disciplined few obeyed. Those certain of meeting Allah declared that a small company can overcome a large one by Allah's permission, emphasizing faith and patience over numbers.</p>
+                    <p class="mb-2 text-sm">They prayed for patience and victory. By Allah's permission, they were victorious, and David killed Goliath. Allah then granted David kingship and prophethood.</p>
+                    <p class="mt-2 italic text-sm"><strong>Key Lessons:</strong> Divine criteria for leadership (knowledge, stature) over materialism, the importance of discipline and obedience, victory through faith and patience with divine support.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="section-title">V. Ethical and Legal Frameworks: Commands for a Righteous Life</h2>
+            <p class="mb-6 text-center text-lg max-w-2xl mx-auto">Surah Al-Baqarah provides an extensive ethical and legal framework covering worship, social interactions, family life, and financial dealings.</p>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>Pillars of Worship</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <ul class="list-disc list-inside space-y-2 text-sm">
+                        <li><strong>Prayer (Salat):</strong> Establish prayer, seek help through patience and prayer.</li>
+                        <li><strong>Charity (Zakah):</strong> Give Zakah, spend from provisions in Allah's way, from good earnings.</li>
+                        <li><strong>Fasting (Sawm):</strong> Decreed for righteousness, especially in Ramadhan.</li>
+                        <li><strong>Hajj & Umrah:</strong> Complete Hajj and Umrah for Allah.</li>
+                    </ul>
+                    <p class="mt-2 italic text-sm">These pillars are interconnected, aiming for individual piety and societal well-being, with divine mercy and practicality.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>Social & Interpersonal Ethics</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <ul class="list-disc list-inside space-y-2 text-sm">
+                        <li><strong>Justice:</strong> Legal retribution for murder (with provisions for forgiveness).</li>
+                        <li><strong>Patience:</strong> Seek help through patience; Allah is with the patient.</li>
+                        <li><strong>Good Words:</strong> "Speak to people good words." Kind speech and forgiveness are better than charity followed by injury.</li>
+                        <li><strong>Covenants:</strong> Fulfill Allah's covenant.</li>
+                        <li><strong>Avoiding Corruption:</strong> Repeated prohibition against causing corruption.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>Family Law</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <ul class="list-disc list-inside space-y-2 text-sm">
+                        <li><strong>Marriage:</strong> Prohibitions on marrying polytheists until they believe.</li>
+                        <li><strong>Divorce:</strong> Process specified (twice); retain acceptably or release with good treatment. Rules for waiting periods (<span class="annotation-trigger" onmouseover="showAnnotation(event, 'Iddah', 'The waiting period a Muslim woman must observe after the death of her husband or divorce, before she can marry another man.')" onmouseout="hideAnnotation()">Iddah</span>).</li>
+                        <li><strong>Breastfeeding:</strong> Mothers can breastfeed for two complete years; fathers responsible for provision.</li>
+                        <li><strong>Inheritance:</strong> Bequest for parents/relatives if wealth left.</li>
+                        <li><strong>Oaths:</strong> Do not use Allah's name as an excuse against righteousness.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>Financial Ethics</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <ul class="list-disc list-inside space-y-2 text-sm">
+                        <li><strong>Prohibition of Interest (<span class="annotation-trigger" onmouseover="showAnnotation(event, 'Riba', 'Any unjust, exploitative, or unearned increase in money or goods, often translated as 'usury' or 'interest'. It is strictly prohibited in Islam.')" onmouseout="hideAnnotation()">Riba</span>):</strong> Severely condemned; Allah destroys interest, increases charities.</li>
+                        <li><strong>Debt:</strong> Write down debts for a specified term, with a scribe in justice. Witnesses required.</li>
+                        <li><strong>Trust:</strong> If no scribe on journey, security deposit taken; entrusted person must discharge trust faithfully.</li>
+                        <li><strong>Spending in Allah's Way:</strong> Give for divine approval, from good earnings, without invalidating charity with reminders/injury.</li>
+                    </ul>
+                    <div class="question-block" id="q5">
+                        <p class="font-semibold mb-3">Check Your Understanding:</p>
+                        <p class="mb-3">What is the primary reason for the strict prohibition of Riba (interest) in Surah Al-Baqarah?</p>
+                        <div class="space-y-2">
+                            <div class="question-option" onclick="checkAnswer('q5', this, false)">It complicates financial transactions.</div>
+                            <div class="question-option" onclick="checkAnswer('q5', this, true)">It is considered an exploitative and morally corrupting force.</div>
+                            <div class="question-option" onclick="checkAnswer('q5', this, false)">It discourages trade and commerce.</div>
+                            <div class="question-option" onclick="checkAnswer('q5', this, false)">It is difficult to calculate.</div>
+                        </div>
+                        <div class="rationale hidden" id="q5-rationale"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="section-title">VI. Parables and Illustrative Examples: Wisdom for Reflection</h2>
+            <p class="mb-6 text-center text-lg max-w-2xl mx-auto">Surah Al-Baqarah masterfully uses parables to convey complex spiritual truths and moral lessons in a vivid, memorable way.</p>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>Parables of Disbelief</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <p class="mb-2 text-sm"><strong>The Kindled Fire:</strong> Disbelievers are like one who kindled a fire, but Allah took away their light, leaving them in darkness, deaf, dumb, and blind. Illustrates temporary "light" and ultimate spiritual blindness from rejecting truth.</p>
+                    <p class="mb-2 text-sm"><strong>The Rainstorm:</strong> Like those in a rainstorm with darkness, thunder, lightning. They put fingers in ears in dread. Lightning guides them briefly, then darkness halts them. Shows fear, selective engagement, and paralysis before truth.</p>
+                    <p class="text-sm"><strong>Shouting at Cattle:</strong> Disbelievers are like one shouting at cattle that hear only calls/cries, not meaning. Highlights futility of guiding the spiritually unresponsive.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Hardening of Hearts: Lessons from Stones</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <p class="mb-2 text-sm">Hearts can become "hardened... like stones or even harder." Yet, some stones gush rivers, split with water, or fall in fear of Allah. This indicts human hearts more unresponsive than inanimate objects, warning against spiritual apathy but hinting at potential for change.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>Parables of Charity</span>
+                    <span class="icon">&#9660;</span>
+                <div class="accordion-content hidden">
+                    <p class="mb-2 text-sm"><strong>The Seed:</strong> Spending in Allah's way is like a seed growing seven spikes, each with a hundred grains. Allah multiplies reward for whom He wills. Shows exponential reward for sincere charity.</p>
+                    <p class="mb-2 text-sm"><strong>The Smooth Stone:</strong> Invalidating charity (e.g., by showing off) is like a smooth stone with dust, washed bare by rain. They keep nothing earned. Sincerity (<span class="annotation-trigger" onmouseover="showAnnotation(event, 'Ikhlas', 'Sincerity; purity of intention. Performing deeds solely for the sake of Allah, without seeking praise or worldly gain.')" onmouseout="hideAnnotation()">Ikhlas</span>) is paramount.</p>
+                    <p class="text-sm"><strong>The Flourishing Garden:</strong> Spending for Allah's approval is like a garden on high ground. A downpour yields double fruit; even a drizzle suffices. Sincere deeds always bear fruit.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-button" onclick="toggleAccordion(this)">
+                    <span>The Fragility of Worldly Life: The Burned Garden</span>
+                    <span class="icon">&#9660;</span>
+                </button>
+                <div class="accordion-content hidden">
+                    <p class="mb-2 text-sm">A man has a flourishing garden but is old with weak offspring. A fiery whirlwind burns it. Warns that worldly achievements, without a spiritual foundation, can be destroyed, especially when vulnerable. Urges prioritizing spiritual investments.</p>
+                    <div class="question-block" id="q6">
+                        <p class="font-semibold mb-3">Check Your Understanding:</p>
+                        <p class="mb-3">What is the main lesson from the parable of 'The Burned Garden'?</p>
+                        <div class="space-y-2">
+                            <div class="question-option" onclick="checkAnswer('q6', this, false)">The importance of agricultural planning.</div>
+                            <div class="question-option" onclick="checkAnswer('q6', this, false)">That old age inevitably leads to loss.</div>
+                            <div class="question-option" onclick="checkAnswer('q6', this, true)">Worldly achievements are fragile without a spiritual foundation.</div>
+                            <div class="question-option" onclick="checkAnswer('q6', this, false)">That one should avoid having offspring in old age.</div>
+                        </div>
+                        <div class="rationale hidden" id="q6-rationale"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-[#2C3E50] text-white rounded-lg shadow-xl text-center">
+            <h2 class="text-3xl font-bold mb-6 text-[#70B8E1]">Conclusion: The Enduring Message</h2>
+            <p class="text-lg mb-4 max-w-3xl mx-auto opacity-90">Surah Al-Baqarah offers a comprehensive blueprint for human existence, calling humanity to recognize Allah's sovereignty, submit to His will, and live with integrity and purpose.</p>
+            <p class="text-xl font-semibold opacity-95">It provides foundational guidance for success in this world and the Hereafter, emphasizing accountability, sincerity, and a balanced approach to life.</p>
+        </section>
+    </main>
+
+    <div id="annotation-popup" class="annotation-popup hidden"></div>
+
+    <script>
+        function toggleAccordion(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('.icon');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                content.style.maxHeight = content.scrollHeight + 'px'; // Set max-height for smooth transition
+                icon.style.transform = 'rotate(180deg)';
+                button.classList.add('open');
+            } else {
+                content.style.maxHeight = '0'; // Collapse
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+                button.classList.remove('open');
+            }
+        }
+
+        const annotationPopup = document.getElementById('annotation-popup');
+        let currentTimeout;
+
+        function showAnnotation(event, term, definition) {
+            clearTimeout(currentTimeout);
+            annotationPopup.innerHTML = `<strong>${term}:</strong> ${definition}`;
+            annotationPopup.classList.remove('hidden');
+
+            // Position the popup relative to the trigger
+            const triggerRect = event.target.getBoundingClientRect();
+            const mainContentRect = document.querySelector('main').getBoundingClientRect();
+
+            // Calculate position relative to the main content area for consistent placement
+            let popupLeft = triggerRect.left - mainContentRect.left + (triggerRect.width / 2);
+            let popupTop = triggerRect.bottom - mainContentRect.top + 10; // 10px below trigger
+
+            // Adjust if popup goes off screen (simple left/right check)
+            if (popupLeft + annotationPopup.offsetWidth > mainContentRect.width) {
+                popupLeft = mainContentRect.width - annotationPopup.offsetWidth - 20; // 20px padding from right
+            }
+            if (popupLeft < 0) {
+                popupLeft = 20; // 20px padding from left
+            }
+
+            annotationPopup.style.left = popupLeft + 'px';
+            annotationPopup.style.top = popupTop + 'px';
+            annotationPopup.style.opacity = '1';
+            annotationPopup.style.visibility = 'visible';
+        }
+
+        function hideAnnotation() {
+            currentTimeout = setTimeout(() => {
+                annotationPopup.style.opacity = '0';
+                annotationPopup.style.visibility = 'hidden';
+            }, 100); // Small delay to allow moving mouse slightly
+        }
+
+        function checkAnswer(questionId, selectedOption, isCorrect) {
+            const questionBlock = document.getElementById(questionId);
+            const options = questionBlock.querySelectorAll('.question-option');
+            const rationaleDiv = document.getElementById(questionId + '-rationale');
+
+            // Disable all options after selection
+            options.forEach(option => {
+                option.onclick = null; // Remove click listener
+                option.style.cursor = 'default';
+            });
+
+            if (isCorrect) {
+                selectedOption.classList.add('correct');
+                rationaleDiv.innerHTML = '<strong>Correct!</strong> This option accurately reflects the teaching from the document.';
+                rationaleDiv.classList.add('correct');
+            } else {
+                selectedOption.classList.add('incorrect');
+                rationaleDiv.innerHTML = '<strong>Incorrect.</strong> Review the relevant section in the study guide.';
+                rationaleDiv.classList.add('incorrect');
+
+                // Highlight the correct answer
+                options.forEach(option => {
+                    if (option.getAttribute('onclick').includes('true')) {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+            rationaleDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

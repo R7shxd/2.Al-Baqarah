@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Explorer: Surah Al-Baqarah Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Visualization & Content Choices:
+        - Report Info: Human Archetypes Table -> Goal: Compare -> Viz/Presentation: Interactive Cards for details, HTML Table for direct comparison, and a Bar Chart (Chart.js) summarizing key characteristic counts -> Interaction: Click to switch archetype view, hover on chart -> Justification: Provides multiple ways to compare and digest information (detailed text, direct table, visual summary).
+        - Report Info: Pillars of Worship -> Goal: Inform/Organize -> Viz/Presentation: Donut Chart (Chart.js - symbolic) + Text -> Interaction: Static chart with accompanying text -> Justification: Visual representation of core practices alongside explanations.
+        - Report Info: Narratives (e.g., Children of Israel), Laws, Parables -> Goal: Inform/Organize -> Viz/Presentation: Accordions for narratives, Tabs for legal categories, Cards for parables, all with text summaries -> Interaction: Click to expand/navigate -> Justification: Manages information density and allows focused reading on specific sub-topics.
+        - CONFIRMING NO SVG/Mermaid. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px; /* Adjusted for better fit in various layouts */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px; /* Adjusted */
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 320px; /* Adjusted */
+            }
+        }
+        .nav-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .nav-link:hover {
+            background-color: #E0F2F1; /* Light Teal */
+            color: #00796B; /* Darker Teal */
+        }
+        .nav-link.active {
+            background-color: #00796B; /* Teal-700 */
+            color: white;
+            font-weight: 600;
+        }
+        .content-section {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .accordion-button.open span:last-child {
+            transform: rotate(180deg);
+        }
+        .tab-button.active {
+            border-color: #00796B; /* Teal-700 */
+            color: #00796B; /* Teal-700 */
+            font-weight: 600;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+        }
+        /* Scrollbar styling for a more modern look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00796B; /* Teal-700 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #004D40; /* Darker Teal */
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <nav id="sidebar" class="w-full md:w-64 bg-white p-4 md:p-6 shadow-lg md:sticky md:top-0 md:h-screen md:overflow-y-auto">
+            <h1 class="text-2xl font-bold text-teal-700 mb-6 border-b pb-3">Surah Al-Baqarah Explorer</h1>
+            <ul class="space-y-2">
+                <li><a class="nav-link active" onclick="showSection('intro')">Introduction</a></li>
+                <li><a class="nav-link" onclick="showSection('archetypes')">Human Archetypes</a></li>
+                <li><a class="nav-link" onclick="showSection('narratives')">Key Narratives</a></li>
+                <li><a class="nav-link" onclick="showSection('beliefs')">Core Beliefs</a></li>
+                <li><a class="nav-link" onclick="showSection('guidance')">Guidance & Law</a></li>
+                <li><a class="nav-link" onclick="showSection('parables')">Parables & Wisdom</a></li>
+                <li><a class="nav-link" onclick="showSection('conclusion')">Conclusion</a></li>
+            </ul>
+        </nav>
+
+        <main id="main-content" class="flex-1 p-6 md:p-10 overflow-y-auto">
+            <section id="intro-section" class="content-section">
+                <h2 class="text-3xl font-semibold text-teal-700 mb-4">I. Introduction: The Quran as Guidance</h2>
+                <p class="mb-4 text-lg leading-relaxed">This section introduces the Quran, specifically Surah Al-Baqarah, as a divine scripture. It emphasizes the Quran's indisputable authority and its primary role as guidance for those conscious of Allah. The mysterious letters "Alif, Lam, Meem" at the start are highlighted as a symbol of divine knowledge and the miraculous nature of the revelation.</p>
+                <div class="p-6 bg-white rounded-lg shadow">
+                    <p class="mb-2"><strong class="text-teal-600">Core Assertion:</strong> The Quran is "the Book about which there is no doubt, a guidance for those conscious of Allah."</p>
+                    <p class="mb-2"><strong class="text-teal-600">Significance of "Alif, Lam, Meem":</strong> These disconnected letters inspire awe, emphasize the limits of human intellect before divine knowledge, and reinforce the authority of the clear guidance that follows.</p>
+                    <p><strong class="text-teal-600">Nature of Guidance:</strong> The Quran's guidance is most profoundly realized by the "Muttaqin" (those conscious of Allah), requiring a receptive heart. Surah Al-Baqarah, being the longest chapter, provides a comprehensive foundation for understanding Islamic principles.</p>
+                </div>
+            </section>
+
+            <section id="archetypes-section" class="content-section hidden">
+                <h2 class="text-3xl font-semibold text-teal-700 mb-4">II. Human Archetypes: Paths to Divine Acceptance or Rejection</h2>
+                <p class="mb-6 text-lg leading-relaxed">The Quran categorizes humanity into three distinct archetypes based on their response to divine guidance: the Righteous (Al-Muttaqin), the Disbelievers (Al-Kafirun), and the Hypocrites (Al-Munafiqun). This section explores their characteristics and ultimate fates, offering a framework for understanding spiritual paths. You can explore each archetype and see a comparative overview.</p>
+
+                <div class="mb-6 flex space-x-2 border-b pb-2">
+                    <button class="archetype-tab-button px-4 py-2 rounded-t-lg text-stone-600 hover:text-teal-600 focus:outline-none active" onclick="showArchetype('righteous-content', this)">The Righteous</button>
+                    <button class="archetype-tab-button px-4 py-2 rounded-t-lg text-stone-600 hover:text-teal-600 focus:outline-none" onclick="showArchetype('disbelievers-content', this)">The Disbelievers</button>
+                    <button class="archetype-tab-button px-4 py-2 rounded-t-lg text-stone-600 hover:text-teal-600 focus:outline-none" onclick="showArchetype('hypocrites-content', this)">The Hypocrites</button>
+                    <button class="archetype-tab-button px-4 py-2 rounded-t-lg text-stone-600 hover:text-teal-600 focus:outline-none" onclick="showArchetype('comparison-table-content', this)">Comparison Table</button>
+                </div>
+
+                <div id="archetype-details">
+                    <div id="righteous-content" class="archetype-sub-section p-6 bg-white rounded-lg shadow">
+                        <h3 class="text-2xl font-semibold text-emerald-600 mb-3">The Righteous (Al-Muttaqin)</h3>
+                        <p class="mb-2"><strong class="text-emerald-700">Core Characteristics:</strong> Believe in the unseen, establish prayer, spend from provisions, believe in all revelations, certain of the Hereafter, patient, submissive, grateful, perform righteous deeds, fulfill promises, fight in Allah's cause, believe in all messengers without distinction.</p>
+                        <p class="mb-2"><strong class="text-emerald-700">Ultimate Fates:</strong> Upon right guidance, successful, gardens in Paradise eternally, no fear or grief, reward with Lord, positioned above disbelievers, recipients of Allah's kindness and guidance, brought from darkness to light, forgiven.</p>
+                        <p class="mt-3 italic">Their righteousness is an active engagement with divine commands, encompassing private devotion and public responsibility, leading to divine favor and eternal peace.</p>
+                    </div>
+                    <div id="disbelievers-content" class="archetype-sub-section hidden p-6 bg-white rounded-lg shadow">
+                        <h3 class="text-2xl font-semibold text-red-600 mb-3">The Disbelievers (Al-Kafirun)</h3>
+                        <p class="mb-2"><strong class="text-red-700">Core Characteristics:</strong> Unresponsive to warnings, hearts/hearing/vision sealed, purchased error for guidance, deaf/dumb/blind, deny signs, kill prophets, break covenants, follow magic, greedy for worldly life, disbelieve in parts of Scripture, arrogant.</p>
+                        <p class="mb-2"><strong class="text-red-700">Ultimate Fates:</strong> Great punishment, no profit from their worldly "transactions," encompassed by Allah, Fire prepared for them, losers, abide eternally in Fire, punishment not lightened nor aided, cursed by Allah, face wrath upon wrath and humiliating punishment, no share in Hereafter, disgrace in this world, Allah's enmity, interest destroyed (leading to "war" from Allah).</p>
+                        <p class="mt-3 italic">Their persistent rejection of truth leads to a sealing of their spiritual senses and severe, eternal consequences, highlighting a miscalculation of true value.</p>
+                    </div>
+                    <div id="hypocrites-content" class="archetype-sub-section hidden p-6 bg-white rounded-lg shadow">
+                        <h3 class="text-2xl font-semibold text-amber-600 mb-3">The Hypocrites (Al-Munafiqun)</h3>
+                        <p class="mb-2"><strong class="text-amber-700">Core Characteristics:</strong> Outwardly claim belief but are not true believers, attempt to deceive Allah and believers (deceiving only themselves), hearts diseased, claim to be reformers but are corrupters, call believers foolish, feign belief with believers but mock with their evil associates, break covenants, distort scripture, believe selectively, prioritize worldly life over Hereafter, fierce opponents, exhibit pride in sin.</p>
+                        <p class="mb-2"><strong class="text-amber-700">Ultimate Fates:</strong> Allah increases their disease, painful punishment for lying, Allah mocks them and prolongs their transgression, wander blindly, losers, woe for their writings and earnings, disgrace in worldly life, severest punishment in Hereafter, punishment not lightened nor aided, Hellfire as a wretched resting place.</p>
+                        <p class="mt-3 italic">Their deception and selective faith lead to a worsening spiritual state, internal contradictions, and grave consequences both in this world and the Hereafter.</p>
+                    </div>
+                    <div id="comparison-table-content" class="archetype-sub-section hidden p-6 bg-white rounded-lg shadow overflow-x-auto">
+                        <h3 class="text-2xl font-semibold text-teal-600 mb-3">Comparative Analysis of Human Archetypes</h3>
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archetype</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Core Characteristics (Summary)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ultimate Fates (Summary)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-emerald-600">The Righteous</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">Sincere belief, prayer, charity, patience, fulfills promises.</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">Guidance, success, Paradise, no fear/grief.</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-red-600">The Disbelievers</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">Rejection of truth, sealed hearts, arrogance, covenant-breaking.</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">Great punishment, eternal Fire, loss, Allah's curse/enmity.</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-amber-600">The Hypocrites</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">Deception, diseased hearts, corruption, selective belief, pride in sin.</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">Increased disease, painful punishment, mockery, disgrace, Hellfire.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-teal-600 mb-3 text-center">Archetype Characteristics Summary</h3>
+                    <div class="chart-container bg-white p-4 rounded-lg shadow">
+                        <canvas id="archetypeComparisonChart"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-gray-600 mt-2">Illustrative chart showing a count of distinct positive/negative traits and fates mentioned in the report for each archetype.</p>
+                </div>
+            </section>
+
+            <section id="narratives-section" class="content-section hidden">
+                <h2 class="text-3xl font-semibold text-teal-700 mb-4">III. Narratives of Guidance and Warning: Lessons from History</h2>
+                <p class="mb-6 text-lg leading-relaxed">The Quran uses historical narratives as powerful teaching tools. This section explores key stories from Surah Al-Baqarah, such as the creation of Adam, the trials of the Children of Israel, and the story of Saul, Goliath, and David, highlighting the moral and theological lessons embedded within them.</p>
+                <div class="space-y-4">
+                    <div class="accordion-item bg-white rounded-lg shadow">
+                        <button class="accordion-button w-full flex justify-between items-center p-4 text-left font-medium text-teal-600 hover:bg-teal-50 focus:outline-none" onclick="toggleAccordion(this)">
+                            The Creation of Adam: Vicegerency and Iblees' Arrogance
+                            <span class="transform transition-transform duration-200">&#9660;</span>
+                        </button>
+                        <div class="accordion-content hidden p-4 border-t">
+                            <p class="mb-2">Allah declared His intention to make Adam a "successive authority" on Earth. Angels questioned this, but Allah affirmed His superior knowledge. Adam was taught "the names," demonstrating intellectual capacity justifying his vicegerency.</p>
+                            <p class="mb-2">Angels prostrated to Adam upon command, except Iblees (Satan), who refused due to arrogance and became a disbeliever. This highlights pride as a barrier to faith.</p>
+                            <p>Adam and his wife were expelled from Paradise after Satan caused them to slip. Adam repented, and Allah accepted it, promising guidance for humanity on Earth.</p>
+                            <p class="mt-2 italic"><strong class="text-teal-700">Key Lessons:</strong> Humanity's unique potential and divine trust, the danger of arrogance, the capacity for repentance, and the promise of divine guidance.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-white rounded-lg shadow">
+                        <button class="accordion-button w-full flex justify-between items-center p-4 text-left font-medium text-teal-600 hover:bg-teal-50 focus:outline-none" onclick="toggleAccordion(this)">
+                            The Children of Israel: A Detailed Examination
+                            <span class="transform transition-transform duration-200">&#9660;</span>
+                        </button>
+                        <div class="accordion-content hidden p-4 border-t">
+                            <h4 class="text-lg font-semibold text-teal-700 mb-2">Divine Favors & Their Responses:</h4>
+                            <p class="mb-2">Allah bestowed numerous favors: rescue from Pharaoh, parting of the sea, manna and quails, twelve springs of water. They were instructed to eat good provisions and avoid corruption.</p>
+                            <h4 class="text-lg font-semibold text-teal-700 mt-3 mb-2">Covenants, Transgressions & Consequences:</h4>
+                            <p class="mb-2">Despite favors, a pattern of ingratitude, rebellion, and covenant-breaking emerged: calf worship, demanding to see Allah, changing prescribed words, complaining about provisions, killing prophets. This led to humiliation, poverty, and Allah's anger.</p>
+                            <p class="mb-2">They transgressed the Sabbath (transformed into apes), showed reluctance and excessive questioning about slaughtering a cow, and their hearts hardened like stones. Some distorted the Torah, concealed testimony, and followed magic.</p>
+                            <h4 class="text-lg font-semibold text-teal-700 mt-3 mb-2">Prophetic Lineage:</h4>
+                            <p class="mb-2">The narrative emphasizes a continuous chain of prophets, including Moses (given the Torah) and Jesus (given clear proofs and supported by the Pure Spirit), culminating in the message of Prophet Muhammad which confirms previous scriptures.</p>
+                            <p class="mt-2 italic"><strong class="text-teal-700">Key Lessons:</strong> The cyclical nature of divine favor and human ingratitude, consequences of disobedience and covenant-breaking, the importance of sincere submission, and the continuity of divine revelation.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-white rounded-lg shadow">
+                        <button class="accordion-button w-full flex justify-between items-center p-4 text-left font-medium text-teal-600 hover:bg-teal-50 focus:outline-none" onclick="toggleAccordion(this)">
+                            Saul, Goliath, and David: Faith, Leadership, and Divine Support
+                            <span class="transform transition-transform duration-200">&#9660;</span>
+                        </button>
+                        <div class="accordion-content hidden p-4 border-t">
+                            <p class="mb-2">The Children of Israel asked for a king to fight in Allah's way. Allah chose Saul (Talut), whom they initially questioned due to his lack of wealth. The prophet clarified that Allah chose him for his knowledge and stature.</p>
+                            <p class="mb-2">Saul tested his soldiers with a river; only the disciplined few obeyed. Those certain of meeting Allah declared that a small company can overcome a large one by Allah's permission, emphasizing faith and patience over numbers.</p>
+                            <p>They prayed for patience and victory. By Allah's permission, they were victorious, and David killed Goliath. Allah then granted David kingship and prophethood.</p>
+                            <p class="mt-2 italic"><strong class="text-teal-700">Key Lessons:</strong> Divine criteria for leadership (knowledge, stature) over materialism, the importance of discipline and obedience, victory through faith and patience with divine support, and Allah's way of checking corruption on Earth.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="beliefs-section" class="content-section hidden">
+                <h2 class="text-3xl font-semibold text-teal-700 mb-4">IV. Core Theological Concepts and Divine Attributes</h2>
+                <p class="mb-6 text-lg leading-relaxed">This section delves into fundamental theological concepts articulated in Surah Al-Baqarah, such as the Last Day (Hereafter), the role of angels, and the multifaceted attributes of Allah. Understanding these concepts is crucial for grasping the divine worldview presented in the Quran.</p>
+                <div class="space-y-6">
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-2">The Last Day (Hereafter): Accountability, Recompense, and Eternity</h3>
+                        <p>A central tenet of faith, the Last Day is an inevitable event of judgment and recompense. Every soul will be compensated for its deeds, emphasizing individual accountability. For disbelievers, it brings severe, eternal punishment without intercession. For believers, it promises eternal bliss in Paradise, free from fear and grief. The Hereafter is the true measure of success and loss, urging a spiritual perspective on worldly life.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-2">The Role and Nature of Angels in Divine Order</h3>
+                        <p>Angels are integral to the divine order, serving as observers, questioners (who ultimately submit to Allah's wisdom), receivers of divine teaching, and perfect executors of Allah's commands. Gabriel (Jibreel) conveyed the Quran. Angels are allies of Allah and believers. Harut and Marut taught magic as a trial, with warnings. They also carry divine signs and will be present at judgment. Belief in angels is fundamental.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-2">The Attributes of Allah: His Names and Qualities</h3>
+                        <p class="mb-2">Allah's attributes reveal His nature and relationship with creation. Key attributes include:</p>
+                        <ul class="list-disc list-inside ml-4 space-y-1 text-gray-700">
+                            <li><strong>Oneness (Tawhid):</strong> "Your god is one God."</li>
+                            <li><strong>All-Encompassing (Al-Wasi'), Knowing (Al-Alim):</strong> Knows all things, open and secret.</li>
+                            <li><strong>Wise (Al-Hakim):</strong> The Knowing, the Wise.</li>
+                            <li><strong>Merciful (Ar-Rahim), Forgiving (Al-Ghafur), Accepting of Repentance (At-Tawwab):</strong> Abundant mercy and forgiveness.</li>
+                            <li><strong>Powerful (Al-Qadir), Competent:</strong> Over all things competent.</li>
+                            <li><strong>Seeing (Al-Basir), Hearing (As-Sami'):</strong> Aware of all actions and prayers.</li>
+                            <li><strong>Creator (Al-Khaliq), Originator (Al-Badi'), Sustainer (Ar-Razzaq):</strong> Creates, originates, and provides.</li>
+                            <li><strong>Severe in Punishment (Shadid al-Iqab), Exalted in Might (Al-Aziz):</strong> Balances mercy with justice.</li>
+                            <li><strong>Forbearing (Al-Halim), Praiseworthy (Al-Hamid), Ally (Al-Wali).</strong></li>
+                        </ul>
+                        <p class="mt-2 italic">These attributes depict a God who is One, all-knowing, merciful yet just, powerful, and intimately involved with His creation, encouraging both hope and fear, leading to a balanced spiritual life.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="guidance-section" class="content-section hidden">
+                <h2 class="text-3xl font-semibold text-teal-700 mb-4">V. Ethical and Legal Frameworks: Commands for a Righteous Life</h2>
+                <p class="mb-6 text-lg leading-relaxed">Surah Al-Baqarah provides an extensive ethical and legal framework covering worship, social interactions, family life, and financial dealings. These guidelines aim to cultivate individual piety and foster a just, compassionate society. Explore the different categories of guidance below.</p>
+
+                <div class="mb-6 border-b">
+                    <nav class="flex space-x-1" aria-label="Tabs">
+                        <button class="tab-button active px-3 py-2 font-medium text-sm rounded-t-lg border-b-2 border-transparent hover:text-teal-600 hover:border-gray-300" onclick="showGuidanceTab('worship-tab', this)">Pillars of Worship</button>
+                        <button class="tab-button px-3 py-2 font-medium text-sm rounded-t-lg border-b-2 border-transparent hover:text-teal-600 hover:border-gray-300" onclick="showGuidanceTab('social-tab', this)">Social & Interpersonal Ethics</button>
+                        <button class="tab-button px-3 py-2 font-medium text-sm rounded-t-lg border-b-2 border-transparent hover:text-teal-600 hover:border-gray-300" onclick="showGuidanceTab('family-tab', this)">Family Law</button>
+                        <button class="tab-button px-3 py-2 font-medium text-sm rounded-t-lg border-b-2 border-transparent hover:text-teal-600 hover:border-gray-300" onclick="showGuidanceTab('financial-tab', this)">Financial Ethics</button>
+                    </nav>
+                </div>
+
+                <div id="guidance-tabs-content">
+                    <div id="worship-tab" class="guidance-tab-content p-4 bg-white rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-3">Pillars of Worship</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <p class="mb-1"><strong>Prayer (Salat):</strong> Establish prayer, seek help through patience and prayer, maintain prayers (especially middle prayer), stand devoutly. Flexibility if in fear.</p>
+                                <p class="mb-1"><strong>Charity (Zakah):</strong> Give Zakah, spend from provisions in Allah's way, from good earnings. Avoid invalidating charity with reminders or injury. Provide for relatives, orphans, needy, etc. Concealing charity for the poor is better.</p>
+                                <p class="mb-1"><strong>Fasting (Sawm):</strong> Decreed for righteousness. Limited days. Exemptions for ill/travelers (make up days). Ransom for hardship. Ramadhan is the month of Quran's revelation. Abstain until sunset. Sexual relations forbidden during worship in mosques.</p>
+                                <p><strong>Hajj & Umrah:</strong> Complete Hajj and Umrah for Allah. Rules for prevention, sacrifice, Ihram violations. Performed in well-known months; prohibitions on sexual relations, disobedience, disputing. Fear of Allah is the best provision.</p>
+                                <p class="mt-2 italic">These pillars are interconnected, aiming for individual piety and societal well-being, with divine mercy and practicality (e.g., "Allah intends for you ease").</p>
+                            </div>
+                            <div class="chart-container self-center">
+                                <canvas id="pillarsChart"></canvas>
+                                <p class="text-center text-sm text-gray-600 mt-1">Symbolic representation of the Pillars of Worship.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="social-tab" class="guidance-tab-content hidden p-4 bg-white rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-3">Social & Interpersonal Ethics</h3>
+                        <p class="mb-1"><strong>Justice:</strong> Challenge hypocrisy (ordering righteousness but forgetting oneself). Legal retribution for murder (with provisions for forgiveness). "Life in legal retribution" for understanding. Bequests according to what is acceptable. Write debts in justice. Proportionality in justice, but mercy/forgiveness often preferred.</p>
+                        <p class="mb-1"><strong>Patience:</strong> Seek help through patience. Good tidings for the patient. A quality of the true and righteous. Allah is with the patient.</p>
+                        <p class="mb-1"><strong>Good Words:</strong> "Speak to people good words." Kind speech and forgiveness are better than charity followed by injury.</p>
+                        <p class="mb-1"><strong>Covenants:</strong> Fulfill Allah's covenant. Do not exchange Allah's signs for a small price. Breaking covenants is a characteristic of losers/disbelievers.</p>
+                        <p><strong>Avoiding Corruption:</strong> Repeated prohibition against causing corruption. Hypocrites claim reform but corrupt. Allah does not like corruption. Inner sincerity must manifest in ethical behavior.</p>
+                    </div>
+                    <div id="family-tab" class="guidance-tab-content hidden p-4 bg-white rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-3">Family Law</h3>
+                        <p class="mb-1"><strong>Marriage:</strong> Prohibitions on marrying polytheists until they believe. Believing slave better than polytheist. Indirect proposals permissible, secret promises not. No marriage contracts until decreed period ends.</p>
+                        <p class="mb-1"><strong>Divorce:</strong> Process specified (twice). Retain acceptably or release with good treatment. Unlawful to take back gifts (unless limits feared). Rules for third divorce, waiting periods (three periods), husbands' right to reconcile. Do not retain women to harm. Divorced before consummation: half of specified obligation due (unless foregone). Provision for divorced women.</p>
+                        <p class="mb-1"><strong>Breastfeeding:</strong> Mothers can breastfeed for two complete years. Fathers responsible for provision/clothing. No one charged beyond capacity. Weaning by mutual consent. Substitute nursing with acceptable payment.</p>
+                        <p class="mb-1"><strong>Inheritance:</strong> Bequest for parents/relatives if wealth left. Sin in altering bequest (unless correcting error). Widows: waiting period (4 months, 10 days), maintenance for one year.</p>
+                        <p><strong>Oaths:</strong> No blame for unintentional oaths, but for what hearts earn. Waiting time for oath not to have relations with wives (4 months). Do not use Allah's name as an excuse against righteousness. Intention (niyyah) is critical.</p>
+                        <p class="mt-2 italic">These laws aim for justice, stability, and mutual respect, emphasizing "acceptable terms," "good treatment," and "mutual consent."</p>
+                    </div>
+                    <div id="financial-tab" class="guidance-tab-content hidden p-4 bg-white rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-3">Financial Ethics</h3>
+                        <p class="mb-1"><strong>Prohibition of Interest (Riba):</strong> Severely condemned. Likened to being beaten by Satan. Allah permitted trade, forbade interest. Desist after admonition. Allah destroys interest, increases charities. Failure to give up interest means "war from Allah and His Messenger." Interest is a morally corrupting force.</p>
+                        <p class="mb-1"><strong>Debt:</strong> Write down debts for a specified term, with a scribe in justice. Debtor dictates, fearing Allah. Witnesses required (2 men, or 1 man and 2 women). Writing is more just, stronger evidence, prevents doubt. Immediate transactions don't require writing. No harm to scribe/witness.</p>
+                        <p class="mb-1"><strong>Trust:</strong> If no scribe on journey, security deposit taken. Entrusted person must discharge trust faithfully, fear Allah.</p>
+                        <p><strong>Spending in Allah's Way:</strong> Give for divine approval, from good earnings, without invalidating charity with reminders/injury.</p>
+                        <p class="mt-2 italic">These principles promote fairness, transparency, and avoidance of exploitation, aiming for an ethical financial system.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="parables-section" class="content-section hidden">
+                <h2 class="text-3xl font-semibold text-teal-700 mb-4">VI. Parables and Illustrative Examples: Wisdom for Reflection</h2>
+                <p class="mb-6 text-lg leading-relaxed">Surah Al-Baqarah masterfully uses parables to convey complex spiritual truths and moral lessons in a vivid, memorable way, inviting deep reflection. This section explores these illustrative examples.</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-2">Parables of Disbelief</h3>
+                        <p class="mb-1"><strong>The Kindled Fire:</strong> Disbelievers are like one who kindled a fire, but Allah took away their light, leaving them in darkness, deaf, dumb, and blind. Illustrates temporary "light" and ultimate spiritual blindness from rejecting truth.</p>
+                        <p class="mb-1"><strong>The Rainstorm:</strong> Like those in a rainstorm with darkness, thunder, lightning. They put fingers in ears in dread. Lightning guides them briefly, then darkness halts them. Shows fear, selective engagement, and paralysis before truth.</p>
+                        <p><strong>Shouting at Cattle:</strong> Disbelievers are like one shouting at cattle that hear only calls/cries, not meaning. Highlights futility of guiding the spiritually unresponsive.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-2">The Hardening of Hearts: Lessons from Stones</h3>
+                        <p>Hearts can become "hardened... like stones or even harder." Yet, some stones gush rivers, split with water, or fall in fear of Allah. This indicts human hearts more unresponsive than inanimate objects, warning against spiritual apathy but hinting at potential for change.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-2">Parables of Charity</h3>
+                        <p class="mb-1"><strong>The Seed:</strong> Spending in Allah's way is like a seed growing seven spikes, each with a hundred grains. Allah multiplies reward for whom He wills. Shows exponential reward for sincere charity.</p>
+                        <p class="mb-1"><strong>The Smooth Stone:</strong> Invalidating charity (e.g., by showing off) is like a smooth stone with dust, washed bare by rain. They keep nothing earned. Sincerity (Ikhlas) is paramount.</p>
+                        <p><strong>The Flourishing Garden:</strong> Spending for Allah's approval is like a garden on high ground. A downpour yields double fruit; even a drizzle suffices. Sincere deeds always bear fruit.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold text-teal-600 mb-2">The Fragility of Worldly Life: The Burned Garden</h3>
+                        <p>A man has a flourishing garden but is old with weak offspring. A fiery whirlwind burns it. Warns that worldly achievements, without a spiritual foundation, can be destroyed, especially when vulnerable. Urges prioritizing spiritual investments.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="conclusion-section" class="content-section hidden">
+                <h2 class="text-3xl font-semibold text-teal-700 mb-4">VII. Conclusion: The Enduring Message and Call to Action</h2>
+                <p class="mb-4 text-lg leading-relaxed">This comprehensive study of Surah Al-Baqarah (verses 2-286) reveals a foundational divine discourse serving as an enduring guide. It establishes the Quran's authority and its purpose to guide the righteous.</p>
+                <div class="p-6 bg-white rounded-lg shadow space-y-3">
+                    <p>The Surah categorizes humanity (righteous, disbelievers, hypocrites), detailing their traits and fates, emphasizing accountability and sincerity.</p>
+                    <p>Historical narratives (Adam, Children of Israel, Saul/Goliath/David) offer didactic lessons on human potential, arrogance, ingratitude, divine leadership criteria, and victory through faith.</p>
+                    <p>Core theological concepts (Allah's attributes, angels, Last Day) build a framework of a balanced divine nature (Mercy and Justice) and an ordered universe, with the Hereafter as the true measure of success.</p>
+                    <p>Ethical and legal frameworks provide practical directives for worship, social ethics, family law, and financial dealings, aiming for individual piety and a just society, with divine ease and flexibility.</p>
+                    <p>Parables vividly convey spiritual truths about belief, hardened hearts, charity, and the transient nature of worldly success without a spiritual foundation.</p>
+                    <p class="font-semibold text-teal-700">In essence, Surah Al-Baqarah offers a comprehensive blueprint for human existence, calling humanity to recognize Allah's sovereignty, submit to His will, and live with integrity and purpose, thereby securing success in this world and the Hereafter.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+    const archetypeData = {
+        labels: ['Righteous', 'Disbelievers', 'Hypocrites'],
+        datasets: [
+            {
+                label: 'Positive Traits/Fates Mentioned',
+                data: [10, 0, 0], // Approximate counts from report summary
+                backgroundColor: 'rgba(75, 192, 192, 0.6)', // Teal
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Negative Traits/Fates Mentioned',
+                data: [0, 12, 10], // Approximate counts from report summary
+                backgroundColor: 'rgba(255, 99, 132, 0.6)', // Red
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }
+        ]
+    };
+
+    const pillarsData = {
+        labels: ['Prayer (Salat)', 'Charity (Zakah)', 'Fasting (Sawm)', 'Hajj & Umrah'],
+        datasets: [{
+            label: 'Pillars of Worship',
+            data: [25, 25, 25, 25], // Equal symbolic representation
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.7)', // Blue
+                'rgba(75, 192, 192, 0.7)', // Teal
+                'rgba(255, 206, 86, 0.7)', // Yellow
+                'rgba(153, 102, 255, 0.7)' // Purple
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(153, 102, 255, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    let archetypeChartInstance = null;
+    let pillarsChartInstance = null;
+
+    function renderArchetypeChart() {
+        const ctx = document.getElementById('archetypeComparisonChart').getContext('2d');
+        if (archetypeChartInstance) {
+            archetypeChartInstance.destroy();
+        }
+        archetypeChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: archetypeData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderPillarsChart() {
+        const ctx = document.getElementById('pillarsChart').getContext('2d');
+         if (pillarsChartInstance) {
+            pillarsChartInstance.destroy();
+        }
+        pillarsChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: pillarsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                     tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                     // For doughnut, value is directly context.parsed
+                                    label += context.parsed + '% (Symbolic)';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function showSection(sectionId) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        document.getElementById(sectionId + '-section').classList.remove('hidden');
+
+        document.querySelectorAll('#sidebar .nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        document.querySelector(`#sidebar .nav-link[onclick="showSection('${sectionId}')"]`).classList.add('active');
+
+        if (sectionId === 'archetypes' && !archetypeChartInstance) {
+            renderArchetypeChart();
+        }
+        if (sectionId === 'guidance' && !pillarsChartInstance) {
+             // Ensure the worship tab is active to show the chart initially
+            const worshipTab = document.querySelector('#worship-tab');
+            if (worshipTab && worshipTab.classList.contains('guidance-tab-content')) {
+                 renderPillarsChart();
+            }
+        }
+         // Scroll to top of main content area on section change
+        document.getElementById('main-content').scrollTop = 0;
+    }
+
+    function toggleAccordion(button) {
+        const content = button.nextElementSibling;
+        const icon = button.querySelector('span:last-child');
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+            button.classList.add('open');
+        } else {
+            content.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+            button.classList.remove('open');
+        }
+    }
+
+    function showArchetype(archetypeId, clickedButton) {
+        document.querySelectorAll('.archetype-sub-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        document.getElementById(archetypeId).classList.remove('hidden');
+
+        document.querySelectorAll('.archetype-tab-button').forEach(button => {
+            button.classList.remove('active', 'text-teal-700', 'border-teal-700', 'font-semibold');
+            button.classList.add('text-stone-600', 'border-transparent');
+        });
+        clickedButton.classList.add('active', 'text-teal-700', 'border-teal-700', 'font-semibold');
+        clickedButton.classList.remove('text-stone-600', 'border-transparent');
+    }
+    
+    function showGuidanceTab(tabId, clickedButton) {
+        document.querySelectorAll('.guidance-tab-content').forEach(tab => {
+            tab.classList.add('hidden');
+        });
+        document.getElementById(tabId).classList.remove('hidden');
+
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active', 'border-teal-700', 'text-teal-700');
+        });
+        clickedButton.classList.add('active', 'border-teal-700', 'text-teal-700');
+        
+        if (tabId === 'worship-tab' && !pillarsChartInstance) {
+            renderPillarsChart();
+        } else if (tabId === 'worship-tab' && pillarsChartInstance) {
+            // If chart exists but tab was hidden, it might need a resize/update
+            setTimeout(() => pillarsChartInstance.resize(), 0);
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        showSection('intro'); // Show intro section by default
+        // Set the first archetype tab active by default
+        const firstArchetypeButton = document.querySelector('.archetype-tab-button');
+        if(firstArchetypeButton) {
+            showArchetype('righteous-content', firstArchetypeButton);
+        }
+        // Set the first guidance tab active by default
+        const firstGuidanceButton = document.querySelector('#guidance-tabs-content').parentElement.querySelector('.tab-button');
+         if(firstGuidanceButton) {
+            showGuidanceTab('worship-tab', firstGuidanceButton);
+            // Render pillars chart if worship tab is initially active
+            if (document.getElementById('worship-tab').classList.contains('guidance-tab-content') && !document.getElementById('worship-tab').classList.contains('hidden')) {
+                 renderPillarsChart();
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
